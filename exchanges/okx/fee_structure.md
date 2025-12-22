@@ -22,6 +22,10 @@ OKX uses a **tiered fee structure** based on:
 ### What is DMM?
 **Designated Market Maker** = Special tier granted by OKX for providing liquidity.
 
+**User Confirmation** (2025-12-22):
+- ✅ User account is DMM tier
+- ✅ DMM = VIP9 equivalent fee rates confirmed
+
 **Benefits**:
 - Equivalent to VIP9 fee rates
 - Lower maker fees (rebates)

@@ -60,10 +60,53 @@ KST: 17:00 (5:00 PM, UTC+9)
 EST: 03:00 (3:00 AM, UTC-5)
 ```
 
-**Expiry days**:
-- **Weekly**: Every Friday
-- **Monthly**: Last Friday of the month
-- **Quarterly**: Last Friday of Mar/Jun/Sep/Dec
+**Expiry Structure**:
+
+OKX options have three expiry types, all at **UTC 08:00**:
+
+1. **Daily Expiry**: 매일 08:00 UTC
+2. **Weekly Expiry**: 매주 금요일 08:00 UTC
+3. **Monthly Expiry**: 매달 마지막 금요일 08:00 UTC
+
+**Tenor Terminology** (정확한 용어):
+
+| Tenor | Definition | Notes |
+|-------|-----------|-------|
+| **Front day (FD)** | 가장 가까운 daily expiry | 오늘 or 내일 |
+| **Front week (FW)** | 가장 가까운 weekly expiry | 이번주 금요일 |
+| **Front month (FM)** | 가장 가까운 monthly expiry | 이번달 마지막 금요일 (아직 만기 안됨) |
+| **Second day** | FD 다음 daily expiry | |
+| **Second week** | FW 다음 weekly expiry | 다음주 금요일 |
+| **Third week** | Second week 다음 | |
+| ... | (계속) | |
+
+**⚠️ 중요**:
+- 금요일 당일: **Front day = Front week** (같은 만기)
+- 마지막 금요일 당일: **Front day = Front week = Front month** (모두 같음)
+- ❌ **"Next week (NW)"** 같은 용어는 존재하지 않음 (쓰지 말 것)
+
+**Example** (2025-12-23 월요일 기준):
+```
+Today: 2025-12-23 (월)
+
+Front day: 2025-12-24 (화) 08:00 UTC
+Front week: 2025-12-27 (금) 08:00 UTC  ← 이번주 금요일
+Front month: 2026-01-31 (금) 08:00 UTC ← 1월 마지막 금요일
+
+Second day: 2025-12-25 (수) 08:00 UTC
+Second week: 2026-01-03 (금) 08:00 UTC ← 다음주 금요일
+```
+
+**Example** (2025-12-27 금요일 당일 기준):
+```
+Today: 2025-12-27 (금)
+
+Front day = Front week: 2025-12-27 (금) 08:00 UTC ← 같은 만기!
+Front month: 2026-01-31 (금) 08:00 UTC
+
+Second day: 2025-12-28 (토) 08:00 UTC
+Second week: 2026-01-03 (금) 08:00 UTC
+```
 
 ### Settlement Process
 
