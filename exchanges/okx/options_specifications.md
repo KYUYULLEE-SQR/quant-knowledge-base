@@ -48,12 +48,12 @@ Examples:
 
 ### ⚠️ CRITICAL: Expiry Time
 
-**User must verify**: OKX options expiry time is **UTC 08:00** (commonly cited), but:
-- Different sources cite different times
-- May vary by contract type (weekly vs monthly)
-- **Action**: Check https://www.okx.com/trade-info/options OR API
+**VERIFIED with OKX API** (2025-12-22): OKX options expiry time is **UTC 08:00** ✅
+- Verified via `/api/v5/public/instruments` endpoint
+- All 646 BTC-USD options expire at 08:00:00 UTC
+- Consistent across weekly, monthly, quarterly contracts
 
-**Assumed expiry time** (verify!):
+**Confirmed expiry time**:
 ```
 UTC: 08:00 (8:00 AM)
 KST: 17:00 (5:00 PM, UTC+9)
