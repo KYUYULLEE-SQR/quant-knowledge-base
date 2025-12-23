@@ -2,7 +2,7 @@
 
 **Purpose**: Agent들이 공통으로 참조하는 도메인 지식, 거래소 스펙, 모델링 디테일, 실험 방법론
 
-**Last Updated**: 2025-12-23
+**Last Updated**: 2025-12-23 (Added: spice_options_database.md)
 **Owner**: sqr
 **Environment**: micky (data), spice (backtest), vultr (trading)
 
@@ -47,6 +47,9 @@
 | "micky 서버 데이터 접근?" | `infrastructure/postgres_data_access.md` | load_candles() 캐시 우선 |
 | "PostgreSQL 연결 안 돼" | `infrastructure/postgres_data_access.md` | 트러블슈팅 (ping/ssh) |
 | "캔들 데이터 어디서?" | `infrastructure/postgres_data_access.md` | micky (192.168.50.3) |
+| "spice 옵션 DB 접속?" | `infrastructure/spice_options_database.md` | localhost:5432 (data_integration) |
+| "btc_options_parsed 스키마?" | `infrastructure/spice_options_database.md` | 19개 컬럼, 169M rows |
+| "OKX 옵션 데이터 어디?" | `infrastructure/spice_options_database.md` | btc_options_parsed (31M rows) |
 
 ### Response Format (필수)
 ```
@@ -153,13 +156,22 @@
 
 ### 🖥️ Infrastructure (인프라)
 
-- **[PostgreSQL Data Access](infrastructure/postgres_data_access.md)** ⭐⭐⭐
-  - micky 서버 (192.168.50.3) - 캔들 데이터 접근
+- **[PostgreSQL Data Access - micky](infrastructure/postgres_data_access.md)** ⭐⭐⭐
+  - micky 서버 (192.168.50.3) - 캔들 데이터 (선물 1분봉)
   - `load_candles()` - Binance/OKX 데이터 로드 (캐시 우선)
   - 273M+ 행, 2023-01-01 ~ 현재, 준실시간 업데이트
   - 네트워크: vultr/spice → micky (내부 네트워크)
   - 캐시 시스템 (178 symbols, 363.87 MB)
   - 트러블슈팅: 연결 에러, 타임아웃, 캐시 손상
+
+- **[Spice Options Database](infrastructure/spice_options_database.md)** ⭐⭐⭐
+  - spice 서버 localhost (127.0.0.1:5432) - 옵션 데이터
+  - Database: `data_integration` (PostgreSQL 12)
+  - 메인 테이블: `btc_options_parsed` (169M rows, 2022-04-16 ~ 2025-12-05)
+  - 데이터 소스: Deribit (138M), OKX (31M)
+  - 컬럼: date, exchange, symbol, strike, callput, expiry, tte, iv, ohlc, greeks
+  - 로딩: `/home/sqr/options_trading/data/load_to_db.py` (Parquet → PostgreSQL)
+  - 기타 테이블: btc_options_hourly (15M, normalized), futures_data_1m, eth_options_parsed
 
 ---
 
