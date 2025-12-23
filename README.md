@@ -2,7 +2,7 @@
 
 **Purpose**: Agent들이 공통으로 참조하는 도메인 지식, 거래소 스펙, 모델링 디테일, 실험 방법론
 
-**Last Updated**: 2025-12-22
+**Last Updated**: 2025-12-23
 **Owner**: sqr
 **Environment**: micky (data), spice (backtest), vultr (trading)
 
@@ -34,6 +34,9 @@
 | "옵션 만기일 언제?" | `exchanges/okx/options_specifications.md` | UTC 08:00 |
 | "주문이 부분 체결되면?" | `exchanges/okx/order_execution.md` | 30% fill 가정 |
 | "실험 설계 어떻게?" | `experiments/methodology.md` | 변인 통제 (Phase 1→2) |
+| "실험 파일 어디 저장?" | `experiments/file_organization_policy.md` | Strategy/Phase hierarchy |
+| "Sharpe 어떻게 계산?" | `experiments/performance_metrics.md` | 365-day annualization |
+| "Look-ahead bias 방지?" | `experiments/common_pitfalls.md` | Signal shift test |
 
 ### Response Format (필수)
 ```
@@ -83,6 +86,21 @@
   - 변인 통제 (한 번에 하나의 효과만)
   - Phase 1 (개별 효과) → Phase 2 (결합 효과)
   - Common mistakes (여러 변수 동시 변경)
+
+- **[Common Pitfalls](experiments/common_pitfalls.md)** ⭐⭐⭐
+  - Look-ahead bias, selection bias, data snooping
+  - Overfitting, backtest-reality gap, regime change
+  - Detection methods and prevention
+
+- **[File Organization Policy](experiments/file_organization_policy.md)** ⭐⭐⭐
+  - 100+ 실험 관리 구조
+  - Strategy/Phase/Date-based hierarchy
+  - REGISTRY.md for searchability
+
+- **[Performance Metrics](experiments/performance_metrics.md)** ⭐⭐⭐
+  - 365-day annualization (NOT 255)
+  - Sharpe, Sortino, MDD, Volatility, Returns
+  - Mark-to-Market NAV calculation
 
 - **[Lessons Learned](experiments/lessons_learned.md)**
   - 실패 사례, 교훈
