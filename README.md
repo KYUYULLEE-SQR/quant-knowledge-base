@@ -37,6 +37,8 @@
 | "실험 파일 어디 저장?" | `experiments/file_organization_policy.md` | Strategy/Phase hierarchy |
 | "Sharpe 어떻게 계산?" | `experiments/performance_metrics.md` | 365-day annualization |
 | "Look-ahead bias 방지?" | `experiments/common_pitfalls.md` | Signal shift test |
+| "백테스트 NAV 계산?" | `experiments/backtesting_nav_policy.md` | Hourly MTM → Daily resample |
+| "MDD가 0이라고 나와" | `experiments/backtesting_nav_policy.md` | Entry/Exit만 평가하는 문제 |
 | "Greeks PA vs BS 차이?" | `exchanges/greeks_definitions.md` | PA=BTC, BS=USD |
 | "OKX Theta 어떻게 읽어?" | `exchanges/greeks_definitions.md` | PA: BTC/day, BS: USD/day |
 
@@ -110,6 +112,11 @@
   - 365-day annualization (NOT 255)
   - Sharpe, Sortino, MDD, Volatility, Returns
   - Mark-to-Market NAV calculation
+
+- **[Backtesting NAV Policy](experiments/backtesting_nav_policy.md)** ⭐⭐⭐
+  - Hourly MTM evaluation (NOT entry/exit only)
+  - Daily resample for metrics
+  - Fixes MDD = 0 problem
 
 - **[Lessons Learned](experiments/lessons_learned.md)**
   - 실패 사례, 교훈
