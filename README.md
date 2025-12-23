@@ -37,6 +37,8 @@
 | "실험 파일 어디 저장?" | `experiments/file_organization_policy.md` | Strategy/Phase hierarchy |
 | "Sharpe 어떻게 계산?" | `experiments/performance_metrics.md` | 365-day annualization |
 | "Look-ahead bias 방지?" | `experiments/common_pitfalls.md` | Signal shift test |
+| "Greeks PA vs BS 차이?" | `exchanges/greeks_definitions.md` | PA=BTC, BS=USD |
+| "OKX Theta 어떻게 읽어?" | `exchanges/greeks_definitions.md` | PA: BTC/day, BS: USD/day |
 
 ### Response Format (필수)
 ```
@@ -50,6 +52,12 @@
 ## 📖 Document Index
 
 ### 🏦 Exchanges (거래소 스펙)
+
+#### General (공통)
+- **[Greeks Definitions](exchanges/greeks_definitions.md)** ⭐⭐⭐
+  - OKX: PA (BTC units) vs BS (USD units)
+  - Theta/Vega conversion: PA × BTC_price ≈ BS
+  - Deribit: Pending verification
 
 #### OKX
 - **[Fee Structure](exchanges/okx/fee_structure.md)** ⭐
