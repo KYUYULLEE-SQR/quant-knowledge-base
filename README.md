@@ -41,6 +41,9 @@
 | "MDD가 0이라고 나와" | `experiments/backtesting_nav_policy.md` | Entry/Exit만 평가하는 문제 |
 | "Greeks PA vs BS 차이?" | `exchanges/greeks_definitions.md` | PA=BTC, BS=USD |
 | "OKX Theta 어떻게 읽어?" | `exchanges/greeks_definitions.md` | PA: BTC/day, BS: USD/day |
+| "SM이 뭐야?" | `exchanges/options_expiry_conventions.md` | Second Month (2개월 후), NOT Saturday! |
+| "Front Month 언제?" | `exchanges/options_expiry_conventions.md` | 다음 월간 마지막 금요일 |
+| "만기 약자 D/W/M/Q?" | `exchanges/options_expiry_conventions.md` | Daily/Weekly/Monthly/Quarterly |
 | "micky 서버 데이터 접근?" | `infrastructure/postgres_data_access.md` | load_candles() 캐시 우선 |
 | "PostgreSQL 연결 안 돼" | `infrastructure/postgres_data_access.md` | 트러블슈팅 (ping/ssh) |
 | "캔들 데이터 어디서?" | `infrastructure/postgres_data_access.md` | micky (192.168.50.3) |
@@ -64,6 +67,13 @@
   - Deribit: USD units (surprising for BTC-margined!)
   - Theta/Vega conversion: PA × BTC_price ≈ BS (1.00-1.05x)
   - Converter utility: `exchanges/greeks_converter.py`
+
+- **[Options Expiry Conventions](exchanges/options_expiry_conventions.md)** ⭐⭐⭐
+  - 만기 약자: D, W, M, **SM (Second Month, NOT Saturday Monthly!)**, Q
+  - Front/Second/Third Month (FM, SM, TM)
+  - 계산법: 마지막 금요일, UTC 08:00
+  - 트레이더 용어: Near-term, Mid-term, Far-term
+  - DTE 구분: 0-7 (감마), 30-60 (밸런스), 90+ (방향성)
 
 #### OKX
 - **[Fee Structure](exchanges/okx/fee_structure.md)** ⭐
