@@ -56,8 +56,9 @@
 #### General (공통)
 - **[Greeks Definitions](exchanges/greeks_definitions.md)** ⭐⭐⭐
   - OKX: PA (BTC units) vs BS (USD units)
-  - Theta/Vega conversion: PA × BTC_price ≈ BS
-  - Deribit: Pending verification
+  - Deribit: USD units (surprising for BTC-margined!)
+  - Theta/Vega conversion: PA × BTC_price ≈ BS (1.00-1.05x)
+  - Converter utility: `exchanges/greeks_converter.py`
 
 #### OKX
 - **[Fee Structure](exchanges/okx/fee_structure.md)** ⭐

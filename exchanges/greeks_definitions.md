@@ -18,6 +18,25 @@
 
 ---
 
+## Summary: All Exchanges Compared
+
+| Exchange | Greek Type | Theta | Vega | Delta | Gamma | Note |
+|----------|-----------|-------|------|-------|-------|------|
+| **OKX** | PA | BTC/day | BTC/1%IV | BTC | ⚠️ Unclear | BTC-margined |
+| **OKX** | BS | USD/day | USD/1%IV | Std | Std | Standard BS |
+| **Deribit** | (only) | **USD/day** | **USD/1%IV** | Std | Std | **USD despite BTC-margined!** |
+
+**CRITICAL**:
+- **OKX PA = BTC units** (for BTC-margined traders)
+- **OKX BS = USD units** (standard Black-Scholes)
+- **Deribit = USD units** (SAME as OKX BS, despite being BTC-margined!)
+
+**Conversion**:
+- OKX: `PA × BTC_price ≈ BS` (verified: 1.00-1.05x accuracy)
+- Deribit: `Deribit_USD / BTC_price = BTC_equivalent`
+
+---
+
 ## OKX: PA (Practical Approach) vs BS (Black-Scholes)
 
 ### Summary (결론부터)
@@ -171,31 +190,143 @@ weekly_decay_usd = daily_decay_usd * 7
 
 ## Deribit Greeks
 
-### ⚠️ Status: Pending Verification
+### ✅ Status: Verified (2025-12-23)
 
-**Known**:
-- Deribit is BTC-margined only
-- Likely uses **BTC-denominated Greeks** (similar to OKX PA)
-- Need API verification (currently blocked)
+**CRITICAL FINDING**: Deribit uses **USD Greeks** despite being BTC-margined!
 
-**TODO**:
-```bash
-# Verify Deribit Greeks units
-curl "https://deribit.com/api/v2/public/ticker?instrument_name=BTC-27DEC24-90000-C"
+### Comparison
 
-# Check fields:
-# - greeks.delta (BTC or dimensionless?)
-# - greeks.gamma (BTC or standard?)
-# - greeks.theta (BTC/day or USD/day?)
-# - greeks.vega (BTC per 1% IV or USD?)
+| Exchange | Margin Currency | Greeks Unit | Surprising? |
+|----------|----------------|-------------|-------------|
+| OKX      | BTC | PA = BTC, BS = USD | No (offers both) |
+| Deribit  | BTC | **USD** | **YES!** |
+
+### Verified Data
+
+**Example: BTC-24DEC25-89000-C** (1.2 DTE, near-ATM)
+
+```json
+{
+  "instrument_name": "BTC-24DEC25-89000-C",
+  "index_price": 88604.45,
+  "strike": 89000,
+  "settlement_currency": "BTC",    // ← BTC-margined
+  "quote_currency": "BTC",         // ← Quoted in BTC
+  "mark_price": 0.0071,            // ← BTC
+  "mark_iv": 39.12,
+
+  "greeks": {
+    "delta": 0.43083,              // Dimensionless (standard)
+    "gamma": 0.0002,               // Delta change per $1 BTC move
+    "theta": -322.13,              // ← USD/day (NOT BTC/day!)
+    "vega": 20.17,                 // ← USD per 1% IV (NOT BTC!)
+    "rho": 1.26035
+  }
+}
 ```
 
-**Hypothesis** (to be verified):
-- Deribit Greeks = BTC units (like OKX PA)
-- No USD Greeks (since Deribit is BTC-only)
-- Direct comparison: Deribit Greeks ≈ OKX PA Greeks
+### Unit Verification
 
-**Update this section after verification** ⚠️
+**Theta Analysis**:
+```
+Theta = -322.13
+
+If USD/day:
+  Value: -$322.13/day ✅ Reasonable for 1-day ATM option
+
+If BTC/day:
+  Value: -322.13 BTC/day
+  = -$28,542,007/day ❌ Absurd!
+
+→ Deribit Theta = USD/day
+```
+
+**Vega Analysis**:
+```
+Vega = 20.17
+
+If USD per 1% IV:
+  Value: $20.17 per 1% IV ✅ Reasonable
+
+If BTC per 1% IV:
+  Value: 20.17 BTC per 1% IV
+  = $1,787,143 per 1% IV ❌ Absurd!
+
+→ Deribit Vega = USD per 1% IV
+```
+
+### Comparison with OKX
+
+**Similar option comparison** (near-ATM, short DTE):
+
+| Greek | OKX PA (BTC) | OKX BS (USD) | Deribit (USD) | Match |
+|-------|-------------|-------------|--------------|-------|
+| **Theta** | -0.00117 BTC/day | -110.39 USD/day | -322.13 USD/day | **Deribit = OKX BS** |
+| **Vega** | 0.000169 BTC/1%IV | 15.01 USD/1%IV | 20.17 USD/1%IV | **Deribit = OKX BS** |
+| **Delta** | 0.843 | 0.897 | 0.431 | All dimensionless |
+
+**Note**: Absolute values differ due to different strikes/DTE, but **units match**:
+- **Deribit = OKX BS (USD units)**
+- **Deribit ≠ OKX PA (BTC units)**
+
+### Conversion Formula (Deribit ↔ BTC units)
+
+**For BTC-margined traders using Deribit**:
+
+```python
+# Deribit Greeks are in USD → Convert to BTC
+btc_price = get_btc_index_price()
+
+theta_btc = theta_deribit / btc_price
+vega_btc = vega_deribit / btc_price
+
+# Example
+theta_deribit = -322.13  # USD/day
+btc_price = 88604.45
+theta_btc = -322.13 / 88604.45
+# = -0.003636 BTC/day
+```
+
+**For cross-exchange comparison**:
+
+```python
+# Deribit vs OKX BS (both USD) - Direct comparison
+if deribit_theta_usd > okx_bs_theta_usd:
+    print("Deribit option decays faster")
+
+# Deribit vs OKX PA (USD vs BTC) - Convert first
+okx_pa_theta_usd = okx_pa_theta_btc * btc_price
+if deribit_theta_usd > okx_pa_theta_usd:
+    print("Deribit option decays faster")
+```
+
+### Why This Matters
+
+**Problem**: BTC-margined traders expect BTC Greeks
+
+```python
+# WRONG (assuming Deribit uses BTC Greeks like OKX PA)
+theta_btc = theta_deribit  # ❌ Off by 88,000x!
+daily_decay_btc = 10 * theta_btc
+# = 10 * (-322.13) = -3,221 BTC/day (wrong!)
+
+# CORRECT (Deribit uses USD Greeks)
+theta_btc = theta_deribit / btc_price
+daily_decay_btc = 10 * theta_btc
+# = 10 * (-0.00364) = -0.0364 BTC/day ✅
+```
+
+### Summary Table
+
+| Aspect | OKX | Deribit |
+|--------|-----|---------|
+| **Margin** | BTC | BTC |
+| **Quote** | BTC | BTC |
+| **Settlement** | BTC | BTC |
+| **Greeks** | PA=BTC, BS=USD | **USD only** |
+| **Surprise?** | No (offers both) | **YES!** |
+
+**Key Insight**: Don't assume BTC-margined → BTC Greeks!
 
 ---
 
@@ -462,28 +593,36 @@ Agent:
 
 ## Next Steps (TODO)
 
-1. ⚠️ **Verify Deribit Greeks units** (API currently blocked)
-   - Delta: BTC or dimensionless?
-   - Gamma: BTC or standard?
-   - Theta: BTC/day or USD/day?
-   - Vega: BTC or USD per 1% IV?
+1. ✅ ~~Verify Deribit Greeks units~~ **COMPLETED (2025-12-23)**
+   - Verified: **Deribit uses USD Greeks** (Theta: USD/day, Vega: USD/1%IV)
+   - Surprising: BTC-margined but USD Greeks (like OKX BS)
 
-2. ⚠️ **Clarify OKX PA Gamma unit**
-   - Contact OKX support
-   - Reverse-engineer from position changes
-   - Compare with BS Gamma × BTC_price
+2. ⚠️ **Clarify OKX PA Gamma unit** (ATTEMPTED, INCONCLUSIVE)
+   - **Tested hypothesis**: PA_Gamma ≈ BS_Gamma × BTC_price
+   - **Result**: Works for ATM (5-10% error) but fails broadly (75% avg error)
+   - **Likely**: PA Gamma depends on additional factors (DTE, vol, moneyness)
+   - **Recommendation**: Use BS Gamma for all calculations until clarified
+   - **Action item**: Contact OKX support for official definition
 
 3. ✅ **Add to other exchanges** as needed
    - Binance Options (if used)
    - Bybit Options (if used)
 
-4. ✅ **Create unit conversion utility**
-   ```python
-   # ~/knowledge/exchanges/greeks_converter.py
-   def convert_greeks(greeks, from_type, to_type, btc_price):
-       """Convert between PA and BS Greeks."""
-       # Implementation
-   ```
+4. ✅ ~~Create unit conversion utility~~ **COMPLETED (2025-12-23)**
+   - Created: `knowledge/exchanges/greeks_converter.py`
+   - Features:
+     - OKX PA (BTC) ↔ USD conversion
+     - Deribit (USD) ↔ BTC conversion
+     - Conversion verification (10% tolerance)
+     - Batch portfolio conversion
+   - Usage:
+     ```python
+     from greeks_converter import GreeksConverter
+
+     converter = GreeksConverter(btc_price=88500.0)
+     theta_usd = converter.okx_pa_to_usd(-0.001172, 'theta')
+     # = -$103.72/day ✅
+     ```
 
 ---
 
