@@ -237,6 +237,40 @@ BTC-USD-250110-90000-C (OTM Call, Strike $90k)
   → BTC $1 상승 → Call 가격 $0.35 상승
 ```
 
+**트레이더 표현법** (Delta로 옵션 지칭):
+
+트레이더들은 옵션을 **"몇 델타"**로 부른다:
+
+| 표현 | Delta 값 | Moneyness | 예시 |
+|------|----------|-----------|------|
+| **10 delta call** | Δ ≈ 0.10 | Deep OTM | "10 델타 콜 매도" |
+| **25 delta call** | Δ ≈ 0.25 | OTM | "25 델타 콜 매수" (리스크 리버설) |
+| **50 delta call** | Δ ≈ 0.50 | ATM | "50 델타 스트래들" |
+| **75 delta call** | Δ ≈ 0.75 | ITM | "75 델타 콜 롤" |
+| **90 delta call** | Δ ≈ 0.90 | Deep ITM | "90 델타 합성 롱" |
+
+**실제 대화 예시**:
+```
+Trader A: "Give me price on 25 delta call, 1 week out"
+Trader B: "25d call, 1W tenor, trading at 0.15 BTC"
+
+Trader A: "Sell 10 delta put for premium?"
+Trader B: "10d put, FM expiry, 0.05 BTC bid"
+
+Trader A: "50 delta straddle on front month?"
+Trader B: "ATM straddle, FM, total premium 1.2 BTC"
+```
+
+**용도**:
+- **25 delta**: Risk reversal (25d call long + 25d put short)
+- **50 delta**: ATM straddle/strangle
+- **10 delta**: Far OTM selling (premium collection)
+
+**Why use Delta instead of Strike?**
+- Delta는 **strike-independent** (BTC 가격 변해도 "25 delta"는 항상 비슷한 위치)
+- Strike는 **price-dependent** (BTC $88k일 때 $90k call = OTM, $100k일 때는 ITM)
+- Hedging 계산 편리 (25 delta call 100개 = 25 BTC delta exposure)
+
 ---
 
 ### 2.2 Gamma (Γ): Delta의 변화율
