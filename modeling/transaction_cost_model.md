@@ -22,13 +22,18 @@ T-cost = Exchange Fees + Slippage + Partial Fill Impact
 
 ### OKX Fee Structure (User's Account)
 
-**Tier**: DMM (Designated Market Maker) = VIP9 equivalent
+**Tier**: VIP9 (DMM = Designated Market Maker, VIP9 equivalent)
 
 | Instrument | Maker | Taker | Notes |
 |-----------|-------|-------|-------|
 | **Futures** | **-0.5 bps** (-0.005%) | +5 bps | Rebate received |
 | **Options** | **-1.0 bps** (-0.01%) | +3 bps | Rebate received |
 | **Perpetual** | -0.5 bps | +5 bps | (if applicable) |
+
+**Important**:
+- **Fee tier (VIP0-11)**: 수수료율만 결정 (maker/taker fee %)
+- **Fill probability**: 시장 조건에만 의존 (spread, depth, vol, limit price)
+- **둘은 독립적**: VIP tier 높다고 fill 잘 되는 것 아님
 
 **Key Points**:
 - ✅ **Maker = negative fee** (you get paid for providing liquidity)
@@ -302,7 +307,7 @@ Total T-cost = 23 bps (~0.23% per round trip)
 ```python
 # config.yaml
 transaction_costs:
-  # Fees (based on OKX DMM VIP9)
+  # Fees (based on OKX VIP9 tier)
   maker_fee_futures: -0.005%    # -0.5 bps
   taker_fee_futures: 0.05%      # +5 bps
   maker_fee_options: -0.01%     # -1 bps

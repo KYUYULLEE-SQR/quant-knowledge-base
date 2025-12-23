@@ -41,6 +41,9 @@
 | "MDD가 0이라고 나와" | `experiments/backtesting_nav_policy.md` | Entry/Exit만 평가하는 문제 |
 | "Greeks PA vs BS 차이?" | `exchanges/greeks_definitions.md` | PA=BTC, BS=USD |
 | "OKX Theta 어떻게 읽어?" | `exchanges/greeks_definitions.md` | PA: BTC/day, BS: USD/day |
+| "micky 서버 데이터 접근?" | `infrastructure/postgres_data_access.md` | load_candles() 캐시 우선 |
+| "PostgreSQL 연결 안 돼" | `infrastructure/postgres_data_access.md` | 트러블슈팅 (ping/ssh) |
+| "캔들 데이터 어디서?" | `infrastructure/postgres_data_access.md` | micky (192.168.50.3) |
 
 ### Response Format (필수)
 ```
@@ -118,19 +121,35 @@
   - Daily resample for metrics
   - Fixes MDD = 0 problem
 
-- **[Lessons Learned](experiments/lessons_learned.md)**
-  - 실패 사례, 교훈
+- **[Lessons Learned](experiments/lessons_learned.md)** ⭐⭐⭐
+  - 실패 사례, 교훈 (22개)
+  - Look-ahead bias, Fill probability, Data quality, Greeks, Backtesting
 
-- **[Common Mistakes](experiments/common_mistakes.md)**
-  - Agent들이 자주 하는 실수
+- **[Common Mistakes](experiments/common_mistakes.md)** ⭐⭐⭐
+  - Agent 반복 실수 (28개)
+  - Python/Pandas, API, Backtesting, Greeks, Code organization
 
 ### 🎓 Domain (도메인 지식)
 
-- **[Options Basics](domain/options_basics.md)**
-  - Greeks, payoff, moneyness
+- **[Options Basics](domain/options_basics.md)** ⭐⭐
+  - Greeks (Delta, Gamma, Theta, Vega)
+  - Strategies (Covered Call, Straddle, Iron Condor)
+  - IV & Volatility
 
-- **[Trading Mechanics](domain/trading_mechanics.md)**
-  - Order types, execution, settlement
+- **[Trading Mechanics](domain/trading_mechanics.md)** ⭐⭐
+  - Order types (Market, Limit, Stop, Post-Only)
+  - Execution (Maker vs Taker, Slippage)
+  - Margin & Settlement
+
+### 🖥️ Infrastructure (인프라)
+
+- **[PostgreSQL Data Access](infrastructure/postgres_data_access.md)** ⭐⭐⭐
+  - micky 서버 (192.168.50.3) - 캔들 데이터 접근
+  - `load_candles()` - Binance/OKX 데이터 로드 (캐시 우선)
+  - 273M+ 행, 2023-01-01 ~ 현재, 준실시간 업데이트
+  - 네트워크: vultr/spice → micky (내부 네트워크)
+  - 캐시 시스템 (178 symbols, 363.87 MB)
+  - 트러블슈팅: 연결 에러, 타임아웃, 캐시 손상
 
 ---
 
