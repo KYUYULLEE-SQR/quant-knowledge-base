@@ -2,7 +2,7 @@
 
 **Purpose**: Agent들이 공통으로 참조하는 도메인 지식, 거래소 스펙, 모델링 디테일, 실험 방법론
 
-**Last Updated**: 2025-12-23 (Added: spice_options_database.md)
+**Last Updated**: 2025-12-23 (Added: inverse_options.md)
 **Owner**: sqr
 **Environment**: micky (data), spice (backtest), vultr (trading)
 
@@ -50,6 +50,10 @@
 | "spice 옵션 DB 접속?" | `infrastructure/spice_options_database.md` | localhost:5432 (data_integration) |
 | "btc_options_parsed 스키마?" | `infrastructure/spice_options_database.md` | 19개 컬럼, 169M rows |
 | "OKX 옵션 데이터 어디?" | `infrastructure/spice_options_database.md` | btc_options_parsed (31M rows) |
+| "Inverse option이 뭐야?" | `domain/inverse_options.md` | BTC-settled, delta unbounded |
+| "Delta가 1 넘을 수 있어?" | `domain/inverse_options.md` | Inverse delta: non-monotonic |
+| "BTC 세틀먼트 PnL 계산?" | `domain/inverse_options.md` | Payoff (BTC) = Payoff (USD) / S |
+| "Greeks가 왜 다르지?" | `domain/inverse_options.md` | Convex→Concave transition |
 
 ### Response Format (필수)
 ```
@@ -143,6 +147,14 @@
   - Python/Pandas, API, Backtesting, Greeks, Code organization
 
 ### 🎓 Domain (도메인 지식)
+
+- **[Inverse Options](domain/inverse_options.md)** ⭐⭐⭐
+  - USD-denominated contract, BTC/ETH settlement (Deribit, OKX)
+  - Delta: non-monotonic, unbounded (vs standard [0,1])
+  - PnL: BTC units, not USD (Payoff BTC = Payoff USD / S)
+  - Greeks: use exchange API (NOT Black-Scholes)
+  - Convexity flip: convex → concave for deep ITM
+  - Backtest: track BTC balance, not just USD P&L
 
 - **[Options Basics](domain/options_basics.md)** ⭐⭐
   - Greeks (Delta, Gamma, Theta, Vega)
