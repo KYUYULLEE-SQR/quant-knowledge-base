@@ -2,7 +2,7 @@
 
 **Purpose**: Agent들이 공통으로 참조하는 도메인 지식, 거래소 스펙, 모델링 디테일, 실험 방법론
 
-**Last Updated**: 2025-12-23 (Added: inverse_options.md)
+**Last Updated**: 2025-12-23 (Added: options_expiry_and_tte.md)
 **Owner**: sqr
 **Environment**: micky (data), spice (backtest), vultr (trading)
 
@@ -54,6 +54,10 @@
 | "Delta가 1 넘을 수 있어?" | `domain/inverse_options.md` | Inverse delta: non-monotonic |
 | "BTC 세틀먼트 PnL 계산?" | `domain/inverse_options.md` | Payoff (BTC) = Payoff (USD) / S |
 | "Greeks가 왜 다르지?" | `domain/inverse_options.md` | Convex→Concave transition |
+| "만기 전에 거래 가능?" | `domain/options_expiry_and_tte.md` | UTC 08:00 직전까지 ✅ |
+| "TTE 1일 미만이면?" | `domain/options_expiry_and_tte.md` | 거래 가능 (1분 전도 OK) |
+| "만기일 당일 거래?" | `domain/options_expiry_and_tte.md` | UTC 07:59까지 가능 ✅ |
+| "Gamma explosion 언제?" | `domain/options_expiry_and_tte.md` | TTE < 1 day, ATM |
 
 ### Response Format (필수)
 ```
@@ -147,6 +151,15 @@
   - Python/Pandas, API, Backtesting, Greeks, Code organization
 
 ### 🎓 Domain (도메인 지식)
+
+- **[Options Expiry & TTE](domain/options_expiry_and_tte.md)** ⭐⭐⭐
+  - Expiry: UTC 08:00 (OKX/Deribit)
+  - Trading until: **만기 직전까지** (UTC 07:59도 가능 ✅)
+  - TTE ≠ Trading cutoff: TTE 1분(0.001 day)도 거래 가능
+  - Common mistake: "TTE < 1 day = 거래 불가" (WRONG!)
+  - Gamma explosion: TTE < 1 day, ATM (Greeks unreliable)
+  - Backtest: Close 1 day before expiry (권장)
+  - Timeline examples: 7일 전 → 1분 전 (구체적 시간표)
 
 - **[Inverse Options](domain/inverse_options.md)** ⭐⭐⭐
   - USD-denominated contract, BTC/ETH settlement (Deribit, OKX)
