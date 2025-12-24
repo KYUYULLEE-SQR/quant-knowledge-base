@@ -4,6 +4,240 @@
 
 **"감으로 대충" 백테스트 절대 금지. Trade-by-trade reconciliation 필수.**
 
+---
+
+## 🎯 Position Sizing Rules (CRITICAL)
+
+**백테스트 목적: 전략 로직 검증, NOT 레버리지 최적화**
+
+### Hard Rules (절대 규칙)
+
+**MDD > 100% = 백테스트 무효 (청산 당한 것)**
+
+**If MDD > 100%**:
+1. ❌ "전략이 안 좋네" (WRONG conclusion)
+2. ✅ 포지션 사이즈 줄이기 (FIX sizing, THEN re-run)
+3. ✅ 백테스트 재실행 (청산 리스크 제거 후)
+
+---
+
+### Position Sizing Guidelines
+
+**Options (옵션)**:
+```python
+# 베팅 당 1% NAV
+position_size = NAV * 0.01 / option_premium
+max_contracts = int(position_size)
+
+# Example:
+# NAV = $100,000
+# Option premium = $500
+# Max contracts = $100,000 * 0.01 / $500 = 2 contracts
+```
+
+**Futures/Shitcoins (선물/알트코인)**:
+```python
+# 종목 당 1% NAV
+position_size_usd = NAV * 0.01
+contracts = position_size_usd / contract_value
+
+# Example:
+# NAV = $100,000
+# BTC futures, 1 contract = $10 (0.0001 BTC @ $100k)
+# Max position = $1,000 / $10 = 100 contracts
+```
+
+**Leverage (레버리지)**:
+```python
+# Maximum 3x leverage (conservative)
+max_leverage = 3.0
+total_exposure = sum(abs(position_value))
+if total_exposure / NAV > max_leverage:
+    # Reduce positions proportionally
+    scale_factor = (NAV * max_leverage) / total_exposure
+    positions *= scale_factor
+```
+
+---
+
+### Validation Checks (백테스트 시작 전)
+
+**Before running ANY backtest**:
+```python
+def validate_position_sizing(config):
+    """Validate position sizing prevents liquidation."""
+
+    # Check 1: Per-trade risk <= 2%
+    assert config['max_position_pct'] <= 0.02, \
+        "Position size too large! Max 2% per trade"
+
+    # Check 2: Max leverage <= 3x
+    assert config['max_leverage'] <= 3.0, \
+        "Leverage too high! Max 3x for backtest"
+
+    # Check 3: Margin buffer >= 50%
+    assert config['margin_buffer'] >= 0.5, \
+        "Insufficient margin buffer! Min 50%"
+
+    print("✅ Position sizing validated (liquidation-proof)")
+```
+
+---
+
+### Anti-Patterns (절대 금지)
+
+#### ❌ Bad: 청산 당하고 "전략이 안 좋네"
+```python
+# Backtest result:
+# Sharpe: 2.4
+# Max DD: 150%  # ← LIQUIDATED!
+
+# WRONG conclusion:
+"MDD가 너무 크네, 전략이 위험해"
+
+# RIGHT action:
+"MDD 150% = 청산 = 포지션 사이즈 문제"
+→ position_size_pct: 10% → 1%
+→ Re-run backtest
+```
+
+#### ❌ Bad: 고정 계약 수
+```python
+# experiments/exp1/code/backtest.py
+CONTRACTS = 100  # ← WRONG! (NAV-independent)
+
+# If NAV drops 50%, still buying 100 contracts
+# → Leverage doubles → Liquidation risk
+```
+
+**Fix**: NAV-based sizing
+```python
+def calculate_position_size(nav, position_pct=0.01):
+    return nav * position_pct / contract_value
+```
+
+#### ❌ Bad: 레버리지 최적화
+```python
+# "레버리지 10x로 올려서 Sharpe 3.0 만들었어요!"
+# MDD: 95% (거의 청산)
+
+# WRONG focus: 백테스트는 레버리지 최적화 도구가 아님
+# RIGHT focus: 전략 로직 검증 (저레버리지)
+```
+
+---
+
+### Good Example (올바른 백테스트)
+
+```python
+# experiments/2025-12-24_*/code/backtest.py
+
+class Backtest:
+    def __init__(self, initial_nav=100_000):
+        self.nav = initial_nav
+        self.max_position_pct = 0.01  # 1% per trade
+        self.max_leverage = 2.0       # Conservative
+
+    def calculate_position_size(self, signal, price):
+        """
+        Calculate position size based on current NAV.
+
+        CRITICAL: NAV-based sizing prevents liquidation.
+        """
+        # 1% of current NAV
+        position_value = self.nav * self.max_position_pct
+
+        # Convert to contracts
+        contracts = int(position_value / price)
+
+        # Leverage check
+        total_exposure = sum(abs(p.value) for p in self.positions)
+        new_exposure = total_exposure + (contracts * price)
+
+        if new_exposure / self.nav > self.max_leverage:
+            # Scale down to stay within leverage limit
+            max_contracts = int(
+                (self.nav * self.max_leverage - total_exposure) / price
+            )
+            contracts = min(contracts, max_contracts)
+
+        return contracts
+
+    def validate_results(self):
+        """Post-backtest validation."""
+        if self.max_dd > 1.0:  # MDD > 100%
+            raise ValueError(
+                f"LIQUIDATED! MDD = {self.max_dd*100:.1f}%\n"
+                "→ Reduce position size\n"
+                "→ Current: {self.max_position_pct*100}%\n"
+                "→ Try: 0.5% or 1%"
+            )
+
+        print(f"✅ No liquidation (MDD = {self.max_dd*100:.1f}%)")
+```
+
+---
+
+### Result Validation (백테스트 종료 후)
+
+**MANDATORY checks**:
+```python
+# After backtest completes:
+
+# 1. Liquidation check
+assert max_dd < 1.0, f"LIQUIDATED! MDD={max_dd*100}% > 100%"
+
+# 2. Margin call check
+assert margin_calls == 0, f"Margin calls: {margin_calls} (should be 0)"
+
+# 3. Leverage check
+assert max_leverage_used <= config['max_leverage'], \
+    f"Exceeded leverage limit: {max_leverage_used} > {config['max_leverage']}"
+
+# 4. Position size check
+max_position = max(abs(p) for p in position_history)
+assert max_position <= NAV * 0.02, \
+    f"Position too large: {max_position} > {NAV*0.02}"
+
+print("✅ All risk checks passed (liquidation-proof backtest)")
+```
+
+---
+
+### Summary: Position Sizing Checklist
+
+**Before backtest**:
+- [ ] Position size = 1% NAV per trade (max 2%)
+- [ ] Max leverage = 2-3x (conservative)
+- [ ] Margin buffer >= 50%
+- [ ] NAV-based sizing (not fixed contracts)
+
+**During backtest**:
+- [ ] Update position size as NAV changes
+- [ ] Check leverage before each trade
+- [ ] Stop if margin call triggered
+
+**After backtest**:
+- [ ] MDD < 100% (no liquidation)
+- [ ] Margin calls = 0
+- [ ] Max leverage <= config limit
+- [ ] Max position <= 2% NAV
+
+**If MDD > 100%**:
+1. ❌ Don't conclude "bad strategy"
+2. ✅ Reduce position_pct: 10% → 1% → 0.5%
+3. ✅ Re-run backtest
+4. ✅ Validate: MDD < 50% (healthy)
+
+---
+
+**Key Insight**: "작게 베팅하면 절대 청산 안당하는데"
+- 백테스트 = 전략 로직 검증 (NOT 레버리지 최적화)
+- 포지션 사이즈 작게 → 청산 리스크 제거 → 순수한 전략 성과 측정
+- MDD 150% = 설정 문제, 전략 문제 아님
+
+---
+
 **MANDATORY FILES (every backtest):**
 1. `results/trades.csv` - every trade with before/after state
 2. `results/positions.csv` - position at every timestep
