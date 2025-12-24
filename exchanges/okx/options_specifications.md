@@ -422,14 +422,16 @@ max_qty = risk_per_trade / premium_usd  # 0.5 contracts → round to 1 (minSz)
 ### Cost Model (Fees)
 
 **Fees** (DMM VIP9):
-- Maker: -0.02% (rebate)
-- Taker: +0.03%
+- Maker: -0.01% (-1 bps, rebate)
+- Taker: +0.03% (+3 bps)
 
 **Realistic assumption**:
-- 70% maker, 30% taker → avg 0.005% (0.5 bps)
+- 70% maker, 30% taker → avg 0.02% (0.2 bps)
+  - Calculation: 0.7 * (-1 bps) + 0.3 * (3 bps) = -0.7 + 0.9 = 0.2 bps
 
 **Conservative assumption**:
-- 50% maker, 50% taker → avg 0.005% (still 0.5 bps, asymmetric)
+- 50% maker, 50% taker → avg 0.01% (1 bps)
+  - Calculation: 0.5 * (-1 bps) + 0.5 * (3 bps) = -0.5 + 1.5 = 1 bps
 
 ---
 
