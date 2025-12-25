@@ -501,6 +501,71 @@ cat ~/knowledge/README.md
 
 ---
 
+## 🚫 Anti-Repetition Protocol (같은 말 안하게)
+
+**목적**: 사용자가 같은 지시를 반복하지 않아도 Agent가 자동 적용
+
+### 자동 적용 규칙
+
+| 반복되는 지시 | Agent 자동 트리거 | KB 참조 |
+|--------------|------------------|---------|
+| "Deep Reasoning Mode" | L3/L4 복잡도 작업 시 자동 활성화 | `rules/02_cognitive_protocol.md` |
+| "Correctness over speed" | 백테스트/실험/아키텍처 작업 시 자동 적용 | `rules/06_behavioral_rules.md` |
+| "Phase 1 먼저" | 실험 설계 시 단일 변수 우선 강제 | `rules/05_experiment_guidelines.md` |
+| "KB 찾아봐" | 도메인 질문 시 자동 검색 | 이 README.md Quick Start |
+| "생각해" / "깊이 생각해" | L3/L4 판단 시 Deep Reasoning 자동 | `rules/02_cognitive_protocol.md` |
+| "검증해" / "확인해" | 백테스트 결과에 reconciliation 필수 | `rules/10_backtesting_integrity.md` |
+
+### Red Flags: 사용자가 이 말을 하면 Agent가 잘못하고 있는 것
+
+| 사용자 발언 | 의미 | Agent 수정 행동 |
+|------------|------|----------------|
+| ❌ "아까 말했잖아" | Context 추적 실패 | 이전 대화 참조, STATE.md 확인 |
+| ❌ "KB에 있을텐데" | KB 검색 안 함 | Quick Start 테이블 참조 후 답변 |
+| ❌ "Phase 1 먼저 해야지" | 실험 순서 위반 | 즉시 Phase 1로 재설계 |
+| ❌ "생각 좀 해" | 성급한 실행 | 복잡도 L3/L4 재평가, Deep Reasoning |
+| ❌ "왜 또 물어봐?" | 불필요한 확인 요청 | Assume → State → Proceed |
+| ❌ "reconciliation은?" | 정합성 검증 누락 | trades.csv, positions.csv 생성 |
+
+### Agent Self-Check (매 응답 전)
+
+```
+□ 이 작업의 복잡도? (L1-L4) → L3/L4면 Deep Reasoning 자동
+□ 도메인 질문인가? → KB Quick Start 확인
+□ 실험 설계인가? → Phase 1 단일변수 먼저
+□ 백테스트인가? → reconciliation 파일 필수
+□ 이전에 사용자가 관련 지시 했는가? → 자동 적용
+```
+
+### 예시
+
+**❌ Bad (사용자가 반복해야 함)**:
+```
+User: "백테스트 해줘"
+Agent: "백테스트 실행합니다"
+User: "Phase 1 먼저 해야지"
+Agent: "네, Phase 1으로 합니다"
+User: "그리고 Deep Reasoning Mode로"
+Agent: "네, 깊이 생각합니다"
+```
+
+**✅ Good (Agent가 자동 적용)**:
+```
+User: "백테스트 해줘"
+Agent: [내부 판단]
+  - 복잡도: L3 (백테스트) → Deep Reasoning 자동
+  - 실험: Phase 1 단일변수 먼저 적용
+  - 결과: reconciliation 파일 자동 생성
+
+Agent: "백테스트 L3 복잡도로 판단.
+  1. Phase 1 (단일 효과) 먼저 설계
+  2. Experiment Card 작성
+  3. 결과에 trades.csv, reconciliation.csv 포함
+  [실행]"
+```
+
+---
+
 ## ⚠️ Important Notes
 
 1. **API docs are source of truth**
@@ -546,6 +611,6 @@ cd ~/knowledge/agent_prompts/claude_code
 
 ---
 
-**Version**: 3.0 (Hierarchical structure reorganization - Agent workflow order)
+**Version**: 3.1 (Anti-Repetition Protocol 추가)
 **Created**: 2025-12-22
 **Last Updated**: 2025-12-25

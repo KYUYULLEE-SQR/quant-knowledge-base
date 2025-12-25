@@ -702,7 +702,7 @@ Agent:
 - **User Requirement**: "hourly or daily로 NAV를 Mark to market으로 구하고, daily resample을 한다음에 거기서 365일 해야하는데"
 - **Related KB**:
   - [Experiment Methodology](methodology.md) - Validation requirements
-  - [Common Pitfalls](common_pitfalls.md) - Overfitting detection
+  - [Common Pitfalls](../lessons_learned/common_pitfalls.md) - Overfitting detection
 
 ---
 

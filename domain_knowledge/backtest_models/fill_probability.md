@@ -618,7 +618,7 @@ refills = handle_unfilled_orders(unfilled, current_market_data, fill_ratio=0.3)
 
 ## 📊 Fill Probability vs Transaction Costs
 
-**Integration with transaction cost model** (see `modeling/transaction_cost_model.md`)
+**Integration with transaction cost model** (see `transaction_cost_model.md`)
 
 **Total Cost with Partial Fill**:
 
@@ -765,8 +765,8 @@ else:
 
 ## 📚 Related Documentation
 
-- **Transaction Cost Model**: `modeling/transaction_cost_model.md` - T-cost with partial fill
-- **Slippage Estimation**: `modeling/slippage_estimation.md` - Maker orders have zero slippage
+- **Transaction Cost Model**: `transaction_cost_model.md` - T-cost with partial fill
+- **Slippage Estimation**: `slippage_estimation.md` - Maker orders have zero slippage
 - **Order Execution**: `exchanges/okx/order_execution.md` - Maker order mechanics
 - **Backtesting NAV**: `experiments/backtesting_nav_policy.md` - NAV with unfilled orders
 

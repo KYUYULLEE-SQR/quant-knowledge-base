@@ -294,7 +294,7 @@ Agent:
 
 - **Official OKX Fees**: https://www.okx.com/fees
 - **API Endpoint**: `GET /api/v5/account/account-fee-tier`
-- **Related KB**: [Transaction Cost Model](../../modeling/transaction_cost_model.md)
+- **Related KB**: [Transaction Cost Model](../../backtest_models/transaction_cost_model.md)
 - **User conversation**: 2025-12-22 (fee specification)
 
 ---

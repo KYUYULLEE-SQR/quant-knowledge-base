@@ -898,7 +898,7 @@ BTC moves $100:
 - **OKX Options Specs**: `exchanges/okx/options_specifications.md`
 - **Inverse Options**: `domain/inverse_options.md` (BTC settlement)
 - **Greeks Definitions**: `exchanges/greeks_definitions.md`
-- **Transaction Costs**: `modeling/transaction_cost_model.md`
+- **Transaction Costs**: `../backtest_models/transaction_cost_model.md`
 - **Backtesting NAV**: `experiments/backtesting_nav_policy.md`
 
 ---

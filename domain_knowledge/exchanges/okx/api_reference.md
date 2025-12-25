@@ -924,7 +924,7 @@ if avail_bal > required_margin:
 - **Fee Structure**: `exchanges/okx/fee_structure.md`
 - **Options Specs**: `exchanges/okx/options_specifications.md`
 - **Order Execution**: `exchanges/okx/order_execution.md`
-- **Transaction Costs**: `modeling/transaction_cost_model.md`
+- **Transaction Costs**: `../../backtest_models/transaction_cost_model.md`
 
 ---
 

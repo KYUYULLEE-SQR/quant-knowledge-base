@@ -19,7 +19,7 @@
 git clone https://github.com/KYUYULLEE-SQR/quant-knowledge-base.git ~/knowledge
 
 # 2. Claude Code rules 설치
-cd ~/knowledge/claude_code_rules
+cd ~/knowledge/agent_prompts/claude_code
 ./install.sh
 
 # 완료! Claude Code가 이 프롬프트를 사용함
@@ -33,12 +33,12 @@ cd ~/knowledge/claude_code_rules
 
 ```bash
 # 1. 파일 수정
-vim ~/knowledge/claude_code_rules/CLAUDE.md
-vim ~/knowledge/claude_code_rules/rules/06_behavioral_rules.md
+vim ~/knowledge/agent_prompts/claude_code/CLAUDE.md
+vim ~/knowledge/agent_prompts/claude_code/rules/06_behavioral_rules.md
 
 # 2. Git commit & push
 cd ~/knowledge
-git add claude_code_rules/
+git add agent_prompts/claude_code/
 git commit -m "Update Claude Code rules: ..."
 git push
 
@@ -54,8 +54,8 @@ git pull
 
 | 파일 | 위치 (knowledge) | 심링크 위치 (Claude Code) |
 |------|-----------------|-------------------------|
-| CLAUDE.md | `~/knowledge/claude_code_rules/` | `~/.claude/` |
-| rules/*.md | `~/knowledge/claude_code_rules/rules/` | `~/.claude/rules/` |
+| CLAUDE.md | `~/knowledge/agent_prompts/claude_code/` | `~/.claude/` |
+| rules/*.md | `~/knowledge/agent_prompts/claude_code/rules/` | `~/.claude/rules/` |
 
 ---
 
@@ -86,7 +86,7 @@ git pull
 - Server context
 - Knowledge base protocol
 
-### rules/*.md (8개)
+### rules/*.md (10개)
 1. `01_identity_and_context.md` - 정체성, 서버 문맥
 2. `02_cognitive_protocol.md` - 사고 프로토콜
 3. `03_response_structure.md` - 응답 구조
@@ -95,6 +95,8 @@ git pull
 6. `06_behavioral_rules.md` - 행동 규칙
 7. `08_experiment_organization.md` - 실험 파일 관리
 8. `10_backtesting_integrity.md` - 백테스트 정합성
+9. `11_file_hygiene.md` - 파일 정리 규칙
+10. `12_project_state_protocol.md` - 프로젝트 상태 관리
 
 ---
 
@@ -104,7 +106,7 @@ git pull
 
 ```bash
 # 재설치
-cd ~/knowledge/claude_code_rules
+cd ~/knowledge/agent_prompts/claude_code
 ./install.sh
 ```
 
@@ -123,5 +125,5 @@ cd ~/knowledge/claude_code_rules
 
 ---
 
-**Last Updated**: 2025-12-24
-**Version**: 1.0
+**Last Updated**: 2025-12-25
+**Version**: 1.1 (Path fixes, added rules 11-12)

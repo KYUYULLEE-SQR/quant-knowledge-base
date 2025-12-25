@@ -660,7 +660,7 @@ Before trusting your inverse options backtest:
 
 - `domain/options_basics.md` - Options fundamentals
 - `exchanges/okx/options_specifications.md` - OKX option specs
-- `modeling/transaction_cost_model.md` - Cost modeling
+- `../backtest_models/transaction_cost_model.md` - Cost modeling
 
 ---
 

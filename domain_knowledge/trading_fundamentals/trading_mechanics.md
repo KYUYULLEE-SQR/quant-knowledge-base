@@ -220,7 +220,7 @@ Result:
 - **Maker rebate** 확보 (-0.02% on VIP9)
 - No slippage (fill at limit or nothing)
 
-**Related**: `modeling/fill_probability.md` - 30% fill ratio for maker orders
+**Related**: `../backtest_models/fill_probability.md` - 30% fill ratio for maker orders
 
 ---
 
@@ -338,7 +338,7 @@ Total: 30% fill (30 BTC out of 100)
 2. **Reorder**: New order at more aggressive price
 3. **Wait**: Keep order on book (passive)
 
-**Related**: `modeling/fill_probability.md` - Fill ratio model
+**Related**: `../backtest_models/fill_probability.md` - Fill ratio model
 
 ---
 
@@ -378,7 +378,7 @@ Market Order:
 - Split large orders (**TWAP, VWAP**)
 - Trade during **high liquidity** hours
 
-**Related**: `modeling/slippage_estimation.md` - Slippage models
+**Related**: `../backtest_models/slippage_estimation.md` - Slippage models
 
 ---
 
@@ -445,7 +445,7 @@ Taker Order (Market):
   Net T-cost ≈ 1.03%
 ```
 
-**Related**: `modeling/transaction_cost_model.md`
+**Related**: `../backtest_models/transaction_cost_model.md`
 
 ---
 
@@ -591,9 +591,9 @@ Settlement Price: $90,000
 
 - **OKX Order Execution**: `exchanges/okx/order_execution.md` - OKX 구체적 스펙
 - **OKX Fee Structure**: `exchanges/okx/fee_structure.md` - VIP tier별 수수료
-- **Fill Probability**: `modeling/fill_probability.md` - Maker order 30% fill
-- **Slippage Estimation**: `modeling/slippage_estimation.md` - Slippage 모델
-- **Transaction Costs**: `modeling/transaction_cost_model.md` - T-cost 계산
+- **Fill Probability**: `../backtest_models/fill_probability.md` - Maker order 30% fill
+- **Slippage Estimation**: `../backtest_models/slippage_estimation.md` - Slippage 모델
+- **Transaction Costs**: `../backtest_models/transaction_cost_model.md` - T-cost 계산
 
 ---
 

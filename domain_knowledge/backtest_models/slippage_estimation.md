@@ -532,7 +532,7 @@ estimate_slippage_impact(quantity=150, avg_volume=500, mid_price=2850, a=a, b=b)
 - If filled, execution price = limit price exactly
 - No slippage (by definition of limit order)
 
-**Exception**: Partial fill risk (see `modeling/fill_probability.md`)
+**Exception**: Partial fill risk (see `fill_probability.md`)
 
 ### Implementation
 
@@ -696,7 +696,7 @@ calibrated_estimates = estimated * calibration_factor
 
 ## ⚙️ Integration with Transaction Cost Model
 
-**See**: `modeling/transaction_cost_model.md`
+**See**: `transaction_cost_model.md`
 
 **Total Transaction Cost**:
 ```
@@ -782,8 +782,8 @@ cost_taker = total_transaction_cost(
 
 ## 📚 Related Documentation
 
-- **Transaction Cost Model**: `modeling/transaction_cost_model.md` - Full T-cost framework
-- **Fill Probability**: `modeling/fill_probability.md` - Maker order fill rates
+- **Transaction Cost Model**: `transaction_cost_model.md` - Full T-cost framework
+- **Fill Probability**: `fill_probability.md` - Maker order fill rates
 - **OKX API**: `exchanges/okx/api_reference.md` - Order book endpoint
 - **Order Execution**: `exchanges/okx/order_execution.md` - Maker/taker mechanics
 

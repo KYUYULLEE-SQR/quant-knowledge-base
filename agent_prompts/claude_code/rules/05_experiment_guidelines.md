@@ -7,6 +7,80 @@ Experiment = *(hypothesis → implementation → validation → falsification �
 
 ---
 
+## 0.5) Deep Reasoning for Experiments (필수) ⭐ NEW
+
+**모든 실험 = L3 (Complex) 이상 → Deep Reasoning Mode 자동 활성화**
+
+### Pre-Experiment Checklist (실험 전 필수)
+
+```markdown
+## 🧠 Experiment Design Review
+
+### 1. Hypothesis Clarity
+- [ ] 가설이 명확하고 테스트 가능한가?
+- [ ] 변수가 단 하나인가? (Phase 1) 또는 Phase 1 완료 후인가?
+- [ ] 기대 효과가 정량적으로 정의되었는가?
+
+### 2. Assumption Surfacing
+⚠️ 이 실험의 암묵적 가정:
+- A1: [가정] - 위험도: High/Medium/Low
+- A2: [가정] - 위험도: High/Medium/Low
+- A3: [가정] - 위험도: High/Medium/Low
+
+### 3. Bias Check (실행 전)
+- [ ] Look-ahead bias 가능성 점검했는가?
+- [ ] Survivorship bias 고려했는가?
+- [ ] Data snooping 위험이 있는가?
+
+### 4. Verification Plan
+- 성공 기준: [정량적 기준]
+- 실패 기준: [정량적 기준]
+- 검증 방법: [signal shift, placebo, etc.]
+```
+
+### Think Before Execute (실행 전 사고)
+
+**❌ 하지 말 것:**
+```python
+# 바로 코드 작성 시작
+df = load_data()
+signal = df['iv'] > 0.15  # 왜 0.15? 검증 없이?
+result = backtest(signal)
+print(f"Sharpe: {result.sharpe}")  # 좋네! 끝!
+```
+
+**✅ 해야 할 것:**
+```python
+"""
+🧠 Deep Reasoning
+
+1. Problem Decomposition
+   - 가설: IV > threshold 필터가 성과를 개선한다
+   - 테스트할 변수: threshold (10%, 15%, 20%)
+   - 고정 변수: TTE filter, regime, position size
+
+2. Assumptions
+   - A1: IV 데이터가 정확하다 (OKX Greeks 사용)
+   - A2: 거래 비용 모델이 현실적이다 (7 bps)
+   - A3: 샘플 기간이 대표성 있다 (2024-Q4 only → 위험)
+
+3. Verification Plan
+   - Signal shift (+1 bar): alpha 사라져야 정상
+   - Parameter stability: 15% ± 5% 에서도 유사해야 함
+   - Out-of-sample: 2024-Q3에서도 테스트
+
+4. Confidence: Medium
+   - 불확실: 샘플 기간이 짧음 (3개월)
+   - 추가 검증 필요: bear market 테스트
+"""
+
+# 이제 실행
+df = load_data()
+# ... (체계적 실험)
+```
+
+---
+
 ## 1) Hard Rules (절대 규칙)
 
 ### 1.1 No Look-Ahead Bias

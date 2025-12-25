@@ -600,7 +600,7 @@ def calculate_nav_series(timestamps, portfolio, market_data):
 **See also**:
 - [Performance Metrics](performance_metrics.md) - How to calculate Sharpe, MDD from NAV
 - [Backtesting Integrity](backtesting_integrity.md) - Trade-by-trade reconciliation
-- [Common Pitfalls](common_pitfalls.md) - Look-ahead bias, overfitting
+- [Common Pitfalls](../lessons_learned/common_pitfalls.md) - Look-ahead bias, overfitting
 
 **Integration**:
 ```python

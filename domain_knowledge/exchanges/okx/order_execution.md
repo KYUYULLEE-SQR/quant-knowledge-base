@@ -366,7 +366,7 @@ if abs(actual_fill_ratio - 0.3) > 0.1:
 
 **BEFORE implementing order execution logic:**
 
-1. ✅ Read this file + [Transaction Cost Model](../../modeling/transaction_cost_model.md)
+1. ✅ Read this file + [Transaction Cost Model](../../backtest_models/transaction_cost_model.md)
 2. ✅ Determine strategy type:
    - Maker-only (patient) → Can assume lower slippage, but still model partial fills
    - Mixed (some urgency) → Use partial fill model (30% fill ratio)
@@ -404,7 +404,7 @@ Agent:
 - **OKX API Docs**: https://www.okx.com/docs-v5/en/#order-book-trading-trade
 - **Related KB**:
   - [Fee Structure](fee_structure.md) - Maker vs taker fees
-  - [Transaction Cost Model](../../modeling/transaction_cost_model.md) - Full T-cost breakdown
+  - [Transaction Cost Model](../../backtest_models/transaction_cost_model.md) - Full T-cost breakdown
 - **User conversation**: 2025-12-22 (partial fill specification)
 
 ---

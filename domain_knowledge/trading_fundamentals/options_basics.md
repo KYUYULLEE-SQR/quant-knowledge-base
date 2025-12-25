@@ -766,7 +766,7 @@ IV = solve BS(88000, 90000, 7/365, 0, σ) = 2500
 - **OKX Options Specifications**: `exchanges/okx/options_specifications.md` - 거래소별 스펙
 - **Greeks Definitions**: `exchanges/greeks_definitions.md` - OKX PA vs BS units
 - **Greeks Converter**: `exchanges/greeks_converter.py` - Unit conversion utility
-- **Common Pitfalls**: `experiments/common_pitfalls.md` - Options 관련 실수
+- **Common Pitfalls**: `~/knowledge/research_methodology/lessons_learned/common_pitfalls.md` - Options 관련 실수
 
 ---
 
