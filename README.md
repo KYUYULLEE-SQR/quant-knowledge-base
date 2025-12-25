@@ -122,6 +122,11 @@
   - Phase 1 (개별 효과) → Phase 2 (결합 효과)
   - Common mistakes (여러 변수 동시 변경)
 
+- **[Agent Operating Procedure (SOP)](experiments/agent_operating_procedure.md)** ⭐⭐⭐
+  - multi-project 서버에서 반복 지시 제거 (PROJECT_RULES.md + STATE.md)
+  - 실험 폴더/코드 위생 표준 (src vs scratch)
+  - backtest artifacts + preflight checks (integrity, MTM, metrics sanity)
+
 - **[Common Pitfalls](experiments/common_pitfalls.md)** ⭐⭐⭐
   - Look-ahead bias, selection bias, data snooping
   - Overfitting, backtest-reality gap, regime change

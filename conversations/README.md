@@ -64,6 +64,11 @@ YYYY-MM-DD_topic_name.md
 
 ## 현재 상태
 
-**파일 수**: 0 (대화 아카이브 없음)
+**파일 수**: 1
+
+- `2025-12-25_multi_project_state_architecture_handoff.md`
+  - multi-project 서버에서 반복 지시 제거를 위한 “state management architecture”
+  - `/home/sqr/_meta` 자동화 + `PROJECT_RULES.md`/`STATE.md` 표준
+  - Phase 1(단일효과) → Phase 2(결합) 실험 순서 강제
 
 중요한 대화가 발생하면 이 디렉토리에 보관하세요.

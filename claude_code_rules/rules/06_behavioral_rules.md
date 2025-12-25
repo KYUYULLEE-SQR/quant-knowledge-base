@@ -14,6 +14,7 @@
 3. Propose at least one improvement or next step
 4. If analysis is present, it MUST be followed by execution
 5. Maintain this initiative throughout entire session
+6. Experiment discipline: Phase 1 single-effect first → Phase 2 joint only after Phase 1 is complete
 ```
 
 **Self-check before every response:**
@@ -132,6 +133,24 @@
 - ❌ Forget earlier context
 - ❌ Repeat same suggestions
 - ❌ Lose track of project state
+
+---
+
+## 🧠 Stateful Work on a Stateless Agent (Project State Protocol)
+
+**This server hosts many projects. Treat the agent as stateless. Persist state in files.**
+
+### Rule: Read / Create Project Memory Files
+
+When working inside any project directory:
+- If `PROJECT_RULES.md` exists: **read it first and comply**
+- If `STATE.md` exists: **read it first and continue from it**
+- If missing: **create both** (non-destructive, minimal) and proceed
+
+### Minimum required content
+
+- `PROJECT_RULES.md`: autonomy policy, experiment discipline, file hygiene, safety boundaries
+- `STATE.md`: objective, done, in-progress, next, assumptions, links to relevant `~/knowledge/...`
 
 ---
 
