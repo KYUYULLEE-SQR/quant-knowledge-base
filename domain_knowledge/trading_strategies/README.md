@@ -81,6 +81,14 @@ strategy_name.md
 
 ## 현재 상태
 
-**파일 수**: 0 (전략 문서 없음)
+**파일 수**: 0 (템플릿만 존재)
 
-전략이 성숙하면 이 디렉토리에 문서화하세요.
+**Note**: 전략 문서는 각 프로젝트별로 관리:
+- `~/options_trading/strategies/tier1_production/` - 검증된 옵션 전략
+- `~/shitcoin_trading/experiments/` - ATH Short, ATL Long 전략
+
+이 폴더는 **공통 전략 템플릿 및 cross-project 전략**용.
+
+---
+
+**Last Updated**: 2025-12-25
