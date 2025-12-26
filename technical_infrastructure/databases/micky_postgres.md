@@ -638,7 +638,7 @@ for month in range(1, 7):
 
 **Last Updated**: 2025-12-26
 **Owner**: sqr
-**Server**: corsair (192.168.50.4)
+**Server**: corsair (192.168.50.203)
 **Status**: ✅ Production (Micky 데이터 + 옵션 Greeks 통합)
 
 ---
@@ -648,7 +648,7 @@ for month in range(1, 7):
 | Item | Value |
 |------|-------|
 | **서버 이름** | corsair (통합 데이터 서버) |
-| **IP 주소** | 192.168.50.4:5432 |
+| **IP 주소** | 192.168.50.203:5432 |
 | **데이터베이스** | PostgreSQL 14 (Docker TimescaleDB) |
 | **주요 테이블** | `futures_data_1m` (53M+), `futures_data_1h` (26M+), 옵션 Greeks (175M+) |
 | **데이터 기간** | 2023-01-01 ~ 현재 (실시간) |
@@ -667,7 +667,7 @@ import pandas as pd
 
 # Corsair 서버 연결
 conn = psycopg2.connect(
-    host='192.168.50.4',
+    host='192.168.50.203',
     port=5432,
     dbname='postgres',
     user='postgres',
@@ -805,7 +805,7 @@ df_processed = pd.read_sql(query, conn)
 
 ## 🔄 Micky vs Corsair 비교
 
-| 항목 | Micky (192.168.50.3) | Corsair (192.168.50.4) |
+| 항목 | Micky (192.168.50.3) | Corsair (192.168.50.203) |
 |------|---------------------|----------------------|
 | **용도** | 데이터 수집 원본 서버 | **통합 데이터 서버** ⭐ |
 | **OHLCV** | ✅ 273M rows | ✅ 80M rows (동일 데이터) |
@@ -830,7 +830,7 @@ import psycopg2
 import pandas as pd
 
 conn = psycopg2.connect(
-    host='192.168.50.4', port=5432,
+    host='192.168.50.203', port=5432,
     dbname='postgres', user='postgres', password='123123'
 )
 
@@ -896,10 +896,10 @@ df_pivot['binance_okx_spread'] = df_pivot['Binance'] - df_pivot['OKX']
 
 ```bash
 # 1. Corsair 서버 핑 테스트
-ping 192.168.50.4
+ping 192.168.50.203
 
 # 2. Docker 컨테이너 상태 확인
-ssh sqr@192.168.50.4
+ssh sqr@192.168.50.203
 sudo docker ps | grep candledb
 
 # 3. PostgreSQL 로그 확인
@@ -932,4 +932,4 @@ print(df_tables)
 
 **Version**: 1.0 (Corsair 통합)  
 **Created**: 2025-12-26  
-**Server**: Any server → Corsair (192.168.50.4)
+**Server**: Any server → Corsair (192.168.50.203)
