@@ -628,3 +628,308 @@ for month in range(1, 7):
 **Created**: 2025-12-23
 **Server**: spice (accessing micky)
 
+
+---
+---
+
+# PostgreSQL Remote Data Access (corsair 서버) ⭐ NEW
+
+**Purpose**: corsair 서버에서 캔들/옵션 데이터 접근 방법 (Binance, OKX, Bybit, Deribit)
+
+**Last Updated**: 2025-12-26
+**Owner**: sqr
+**Server**: corsair (192.168.50.4)
+**Status**: ✅ Production (Micky 데이터 + 옵션 Greeks 통합)
+
+---
+
+## 📌 Quick Reference
+
+| Item | Value |
+|------|-------|
+| **서버 이름** | corsair (통합 데이터 서버) |
+| **IP 주소** | 192.168.50.4:5432 |
+| **데이터베이스** | PostgreSQL 14 (Docker TimescaleDB) |
+| **주요 테이블** | `futures_data_1m` (53M+), `futures_data_1h` (26M+), 옵션 Greeks (175M+) |
+| **데이터 기간** | 2023-01-01 ~ 현재 (실시간) |
+| **접속 가능** | 내부 네트워크 (192.168.50.x) |
+| **특징** | **Micky 선물 + 옵션 Greeks 통합** |
+
+---
+
+## 🚀 Quick Start
+
+### Python에서 접속
+
+```python
+import psycopg2
+import pandas as pd
+
+# Corsair 서버 연결
+conn = psycopg2.connect(
+    host='192.168.50.4',
+    port=5432,
+    dbname='postgres',
+    user='postgres',
+    password='123123'
+)
+
+# 1분봉 데이터 로드
+query = """
+    SELECT timestamp, open, high, low, close, volume
+    FROM futures_data_1m
+    WHERE symbol = 'BTC/USDT:USDT'
+      AND exchange = 'Binance'
+      AND timestamp >= '2025-12-01'
+      AND timestamp < '2025-12-02'
+    ORDER BY timestamp ASC
+"""
+
+df = pd.read_sql(query, conn)
+conn.close()
+
+print(f"Loaded {len(df):,} candles")
+```
+
+### 옵션 Greeks 데이터 로드
+
+```python
+# OKX BTC 옵션 Greeks (Raw - 거래소 제공)
+query = """
+    SELECT timestamp, inst_id, delta, gamma, theta, vega, mark_vol
+    FROM raw_okx_btc_options
+    WHERE timestamp >= '2025-12-01'
+      AND timestamp < '2025-12-02'
+    ORDER BY timestamp ASC
+"""
+
+df_greeks = pd.read_sql(query, conn)
+
+# Processed Greeks (Black-Scholes 재계산)
+query = """
+    SELECT timestamp, inst_id, delta, gamma, theta, vega, iv
+    FROM processed_btc_options
+    WHERE timestamp >= '2025-12-01'
+    ORDER BY timestamp ASC
+"""
+
+df_processed = pd.read_sql(query, conn)
+```
+
+---
+
+## 🗄️ 주요 테이블
+
+### OHLCV (캔들 데이터) - Micky에서 이전
+
+| 테이블 | Rows | 설명 |
+|--------|------|------|
+| `futures_data_1m` | 53M+ | 1분봉 (Binance, OKX, Bybit) |
+| `futures_data_1h` | 26M+ | 1시간봉 (Binance, OKX, Bybit) |
+
+### 옵션 Greeks (Raw) - 거래소 제공 원본 ⭐ NEW
+
+| 테이블 | Rows | 크기 | 설명 |
+|--------|------|------|------|
+| `raw_okx_btc_options` | 57M | 18GB | OKX BTC 옵션 Greeks |
+| `raw_okx_eth_options` | 53M | 16GB | OKX ETH 옵션 Greeks |
+| `raw_deribit_btc_options` | 16M | 3.3GB | Deribit BTC 옵션 Greeks |
+| `raw_deribit_eth_options` | 14M | 2.7GB | Deribit ETH 옵션 Greeks |
+
+### 옵션 Greeks (Processed) - Black-Scholes 재계산 ⭐ NEW
+
+| 테이블 | Rows | 크기 | 설명 |
+|--------|------|------|------|
+| `processed_btc_options` | 16M | 3.6GB | BTC Greeks (BS 재계산) |
+| `processed_eth_options` | 19M | 4.0GB | ETH Greeks (BS 재계산) |
+
+**차이점**:
+- **Raw**: 거래소가 제공하는 Greeks (신뢰도 낮음)
+- **Processed**: IV만 거래소에서 가져오고 모든 Greeks를 Black-Scholes로 재계산 (정확도 높음)
+
+### 기타 테이블
+
+| 테이블 | 설명 |
+|--------|------|
+| `funding_rates_v2` | 펀딩 레이트 |
+| `futures_open_interest` | 미결제약정 |
+| `okex_ticks` | 체결 데이터 (Multi-Exchange) |
+| `okex_orderbook_snapshot` | 호가 스냅샷 |
+| `symbol_metadata` | ATH/ATL 추적 (765 symbols) |
+| `deribit_volatility_index` | Deribit DVOL |
+
+---
+
+## 📊 데이터 스키마
+
+### `futures_data_1m` / `futures_data_1h`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `timestamp` | TIMESTAMP | 캔들 시작 시각 (UTC) |
+| `symbol` | TEXT | 심볼 (예: 'BTC/USDT:USDT') |
+| `exchange` | TEXT | 거래소 ('Binance', 'OKX', 'Bybit') |
+| `open` | NUMERIC | 시가 |
+| `high` | NUMERIC | 고가 |
+| `low` | NUMERIC | 저가 |
+| `close` | NUMERIC | 종가 |
+| `volume` | NUMERIC | 거래량 |
+
+### `raw_okx_btc_options` (예시)
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `timestamp` | TIMESTAMP | 데이터 시각 (UTC) |
+| `inst_id` | TEXT | 옵션 계약명 (예: 'BTC-25DEC25-100000-C') |
+| `delta` | NUMERIC | Delta (거래소 제공) |
+| `gamma` | NUMERIC | Gamma |
+| `theta` | NUMERIC | Theta |
+| `vega` | NUMERIC | Vega |
+| `mark_vol` | NUMERIC | Mark IV (내재 변동성) |
+| `mark_price` | NUMERIC | Mark Price |
+
+### `processed_btc_options`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `timestamp` | TIMESTAMP | 데이터 시각 |
+| `inst_id` | TEXT | 옵션 계약명 |
+| `delta` | NUMERIC | Delta (BS 재계산) ⭐ |
+| `gamma` | NUMERIC | Gamma (BS 재계산) ⭐ |
+| `theta` | NUMERIC | Theta (BS 재계산) ⭐ |
+| `vega` | NUMERIC | Vega (BS 재계산) ⭐ |
+| `iv` | NUMERIC | IV (거래소에서 가져옴) |
+| `theoretical_price` | NUMERIC | BS 이론가 |
+
+---
+
+## 🔄 Micky vs Corsair 비교
+
+| 항목 | Micky (192.168.50.3) | Corsair (192.168.50.4) |
+|------|---------------------|----------------------|
+| **용도** | 데이터 수집 원본 서버 | **통합 데이터 서버** ⭐ |
+| **OHLCV** | ✅ 273M rows | ✅ 80M rows (동일 데이터) |
+| **옵션 Greeks** | ✅ 175M rows | ✅ 175M rows (이전 완료) |
+| **Processed Greeks** | ✅ 35M rows | ✅ 35M rows |
+| **PM2 프로세스** | 15개 (수집 중) | 15개 (수집 중) |
+| **재부팅 자동 시작** | ✅ | ✅ |
+| **추천 용도** | 수집 전용 | **분석/백테스트 용도** ⭐ |
+
+**권장 사용**:
+- **백테스트/분석**: Corsair 사용 (통합 데이터)
+- **모니터링**: Micky 또는 Corsair 둘 다 가능
+
+---
+
+## 🔍 Common Use Cases
+
+### 1. 옵션 Greeks 분석
+
+```python
+import psycopg2
+import pandas as pd
+
+conn = psycopg2.connect(
+    host='192.168.50.4', port=5432,
+    dbname='postgres', user='postgres', password='123123'
+)
+
+# BTC 12월 만기 옵션 Delta 분석
+query = """
+    SELECT timestamp, inst_id, delta, mark_price
+    FROM processed_btc_options
+    WHERE inst_id LIKE '%25DEC25%'
+      AND timestamp >= '2025-12-01'
+    ORDER BY timestamp, inst_id
+"""
+
+df = pd.read_sql(query, conn)
+conn.close()
+
+# Delta hedging 계산
+df['delta_hedge'] = df['delta'] * df['mark_price']
+```
+
+### 2. IV Surface 구축
+
+```python
+# 특정 시각의 IV Surface
+query = """
+    SELECT inst_id, iv, mark_price
+    FROM processed_btc_options
+    WHERE timestamp = '2025-12-26 12:00:00'
+    ORDER BY inst_id
+"""
+
+df_iv = pd.read_sql(query, conn)
+
+# Strike & Expiry 파싱
+df_iv['strike'] = df_iv['inst_id'].str.extract(r'-(\\d+)-')[0].astype(float)
+df_iv['expiry'] = pd.to_datetime(df_iv['inst_id'].str.extract(r'BTC-(\\d{2}[A-Z]{3}\\d{2})')[0], format='%d%b%y')
+```
+
+### 3. 여러 거래소 비교
+
+```python
+# Binance vs OKX vs Bybit 가격 비교
+query = """
+    SELECT timestamp, exchange, close
+    FROM futures_data_1m
+    WHERE symbol = 'BTC/USDT:USDT'
+      AND timestamp >= '2025-12-26 00:00:00'
+      AND timestamp < '2025-12-26 01:00:00'
+    ORDER BY timestamp, exchange
+"""
+
+df = pd.read_sql(query, conn)
+df_pivot = df.pivot(index='timestamp', columns='exchange', values='close')
+
+# Arbitrage spread 계산
+df_pivot['binance_okx_spread'] = df_pivot['Binance'] - df_pivot['OKX']
+```
+
+---
+
+## 🚨 트러블슈팅
+
+### 연결 실패
+
+```bash
+# 1. Corsair 서버 핑 테스트
+ping 192.168.50.4
+
+# 2. Docker 컨테이너 상태 확인
+ssh sqr@192.168.50.4
+sudo docker ps | grep candledb
+
+# 3. PostgreSQL 로그 확인
+sudo docker logs candledb --tail 50
+```
+
+### 데이터 없음
+
+```python
+# 테이블 존재 확인
+query = """
+    SELECT tablename FROM pg_tables
+    WHERE schemaname = 'public'
+    ORDER BY tablename
+"""
+
+df_tables = pd.read_sql(query, conn)
+print(df_tables)
+```
+
+---
+
+## 📚 추가 문서
+
+- **Corsair 상세 설정**: `/home/sqr/CORSAIR_SETUP_SUMMARY.md`
+- **Data Collector 접속 정보**: `/home/sqr/data_collector/docs/SERVER_ACCESS.md`
+- **Micky 서버 정보**: 위의 micky 섹션 참조
+
+---
+
+**Version**: 1.0 (Corsair 통합)  
+**Created**: 2025-12-26  
+**Server**: Any server → Corsair (192.168.50.4)
