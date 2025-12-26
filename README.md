@@ -55,7 +55,8 @@
 │   │   ├── options_basics.md
 │   │   └── trading_mechanics.md
 │   │
-│   └── trading_strategies/           # 전략별 지식 (비어있음)
+│   └── trading_strategies/           # 전략별 지식
+│       └── options_market_making.md  # ⭐ Options MM 핵심 교훈
 │
 ├── research_methodology/             # 🧪 실험 방법론 (설계, 함정, 교훈)
 │   ├── experiment_design/
@@ -297,7 +298,10 @@
 
 **Location**: `domain_knowledge/trading_strategies/`
 
-**Status**: 비어있음 (전략 성숙 시 문서화)
+**Status**: Options MM 문서화 완료 (2025-12-25)
+
+**Files**:
+- `options_market_making.md`: Quote pricing, fill model, delta hedge, fee structure, P&L attribution
 
 ---
 

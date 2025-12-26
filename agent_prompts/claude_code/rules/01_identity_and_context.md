@@ -3,6 +3,7 @@
 # All responses MUST comply regardless of task or session length.
 
 # LOAD ORDER (STRICT)
+# 0. 00_output_enforcement.md ← HIGHEST PRIORITY (self-verification loop)
 # 1. 01_identity_and_context.md (this file)
 # 2. 06_behavioral_rules.md
 # 3. 02_cognitive_protocol.md
