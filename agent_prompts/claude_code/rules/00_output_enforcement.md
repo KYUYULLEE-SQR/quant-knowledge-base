@@ -353,5 +353,225 @@ Full results: `~/experiments/[latest]/results/metrics.json`
 
 ---
 
+## 🧪 PROACTIVE EXPERIMENTATION (능동적 실험)
+
+### Hard Rule: Never Stop at 1-2 Trials
+
+**실험 요청 시 MANDATORY 행동:**
+
+```
+User: "이 전략 테스트해봐"
+
+❌ Bad (수동적):
+- 1개 파라미터로 실행 → 결과 보고 → 멈춤
+- "다른 파라미터도 테스트할까요?"
+
+✅ Good (능동적):
+- 3-5개 파라미터 변형 자동 실행
+- 2-3개 기간 교차 검증
+- Baseline 비교 (vs buy-and-hold, vs random)
+- Falsification tests (signal shift, placebo)
+- 한번에 종합 보고
+```
+
+### Auto-Expansion Matrix
+
+| 사용자 요청 | 자동 확장 |
+|------------|----------|
+| "파라미터 X로 테스트" | X ± 20%, ± 50% 변형 3-5개 |
+| "이 기간 백테스트" | + 2개 추가 기간 (bull/bear/sideways) |
+| "전략 테스트" | + baseline 2개 + falsification 2개 |
+| "성과 분석" | 전체 메트릭 + 서브 피리어드 + 리스크 |
+
+### Experiment Checklist (자동 실행)
+
+```
+□ Main experiment (3-5 variants)
+□ Baseline comparisons (2+):
+  - Buy-and-hold
+  - Simple momentum
+  - Random signal
+□ Sub-period analysis (2+ periods)
+□ Falsification tests:
+  - Signal shift (+1 bar)
+  - Label randomization
+  - Parameter sensitivity (±50%)
+□ Cost sensitivity (1x, 2x fees)
+```
+
+**위 체크리스트 미완료 → 실험 불완전**
+
+---
+
+## 📚 GOOD vs BAD EXAMPLES
+
+### Example 1: 실험 결과 보고
+
+**User**: "백테스트 결과 어때?"
+
+**❌ Bad Response (수동적, 불완전)**:
+```
+Sharpe가 2.4 나왔습니다. 괜찮은 것 같습니다.
+다른 기간도 테스트할까요?
+```
+
+**✅ Good Response (능동적, 완전)**:
+```
+## 🎯 Backtest Summary
+
+**Period**: 2024-Q4 (3 months)
+**Decision**: 🟡 Shelve (추가 검증 필요)
+
+| Metric | Main | Baseline (B&H) | Delta |
+|--------|------|----------------|-------|
+| Total Return | +45% | +12% | +33% |
+| Sharpe Ratio | 2.4 | 0.8 | +1.6 |
+| Max Drawdown | -8.5% | -15.2% | +6.7% |
+| Win Rate | 61% | N/A | - |
+| Profit Factor | 1.85 | N/A | - |
+| Total Trades | 127 | 1 | - |
+| Avg Trade | +0.35% | - | - |
+| Longest DD | 12 days | 28 days | -16 days |
+
+### Sub-Period Analysis
+| Period | Return | Sharpe | MDD | Note |
+|--------|--------|--------|-----|------|
+| Oct 2024 | +18% | 2.8 | -4% | Bull |
+| Nov 2024 | +15% | 2.1 | -6% | Sideways |
+| Dec 2024 | +12% | 1.9 | -8.5% | Volatile |
+
+### Validation Tests
+- ✅ Signal shift (+1 bar): Alpha disappears → No look-ahead
+- ✅ Cost sensitivity (2x): Sharpe 1.8 → Still viable
+- ⚠️ Bear market (2022-Q2): Sharpe 0.3 → Regime-dependent
+
+### Files
+- `~/experiments/2025-12-26_15-30_backtest/results/metrics.json`
+- `~/experiments/2025-12-26_15-30_backtest/results/trades.csv`
+
+### Next Action
+1. **Bear market 검증** (2022-Q2) - Regime filter 추가 필요
+2. **Position sizing 최적화** - 현재 고정 3% → Kelly 기반
+```
+
+### Example 2: 단일 메트릭 질문
+
+**User**: "Sharpe 얼마야?"
+
+**❌ Bad Response**:
+```
+2.4입니다.
+```
+
+**✅ Good Response**:
+```
+| Metric | Value | Context |
+|--------|-------|---------|
+| Sharpe Ratio | 2.4 | Annualized (365d) |
+| Max Drawdown | -8.5% | 2024-11-15 |
+| Win Rate | 61% | 127 trades |
+| Total Return | +45% | 2024-Q4 |
+
+Note: Bear market (2022-Q2) 에서는 Sharpe 0.3. Regime-dependent.
+
+Full results: `~/experiments/2025-12-26_15-30_backtest/results/metrics.json`
+```
+
+### Example 3: 구현 요청
+
+**User**: "백테스터 만들어줘"
+
+**❌ Bad Response**:
+```python
+class Backtester:
+    def __init__(self, strategy):
+        self.strategy = strategy
+
+    def run(self):
+        # TODO: Implement backtesting logic
+        pass
+```
+
+**✅ Good Response**:
+```python
+# [500줄+ 완전 구현]
+class Backtester:
+    """Production-ready backtester with risk management."""
+
+    def __init__(self, strategy, start, end, nav, ...):
+        # [전체 초기화 로직 - 50줄]
+
+    def run(self):
+        # [실제 백테스팅 로직 - 200줄]
+        # [포지션 관리 - 100줄]
+        # [PnL 계산 - 50줄]
+        # [성과 지표 - 100줄]
+        return result
+
+# [실행 + 실제 결과]
+bt = Backtester(...)
+result = bt.run()
+
+# Output:
+# PnL: $12,345
+# Sharpe: 2.15
+# Trades: 127
+# ...
+```
+
+---
+
+## ✅ SUCCESS / FAILURE CRITERIA
+
+### Success Criteria (좋은 응답)
+
+- [ ] 사용자가 "정확히 원하던 것 + 더 많은 것" 받음
+- [ ] 추가 질문 불필요 ("X도 해줘" 요청 없음)
+- [ ] 코드가 첫 실행에 작동 (syntax error 없음)
+- [ ] 결과가 production-ready (TODO 없음)
+- [ ] 10+ 메트릭 테이블 포함 (실험 시)
+- [ ] 파일 경로 명시됨
+- [ ] Next Action 제안됨
+
+### Failure Criteria (나쁜 응답)
+
+- [ ] 사용자가 "내가 요청한 게 아닌데"
+- [ ] 사용자가 에러 핸들링 따로 요청
+- [ ] 코드에 placeholder/TODO 있음
+- [ ] 실제 실행 결과 없음 ("Expected:" 사용)
+- [ ] 단독 숫자 답변 ("Sharpe 2.4")
+- [ ] 파일 경로 누락
+- [ ] "테스트할까요?" 물어봄 (그냥 해야 함)
+
+---
+
+## 🎓 META-INSTRUCTIONS (For All Models)
+
+**If you're not Claude Sonnet, follow this:**
+
+1. **Read user request** → Don't respond immediately
+2. **Check context** → Previous messages, open files, project state
+3. **Think internally** (use `<thinking>` tags if available):
+   - What's the actual goal?
+   - What's missing in the request?
+   - What could go wrong?
+4. **Execute, don't explain** → Run code, show actual results
+5. **Always follow 4-section format** → No exceptions
+6. **Be proactive** →
+   - Run multiple variants automatically
+   - Don't stop at 1-2 trials
+   - Suggest next steps
+7. **Self-critique** → Point out limitations
+8. **Self-verify before sending** → Check all criteria above
+
+**Remember:**
+```
+User says "test this" → Run 5+ variants + baselines + falsification
+User asks "Sharpe?" → Show 4+ metrics + file path
+User says "done" → Show full report + Decision + Next Action
+```
+
+---
+
 **Last Updated**: 2025-12-26
-**Version**: 1.0 (Initial - Output Enforcement)
+**Version**: 2.0 (Proactive Experimentation + Examples + Meta-Instructions)

@@ -184,8 +184,101 @@ Full: ~/experiments/YYYY-MM-DD_*/results/metrics.json
 - ❌ Next Action 누락
 - ❌ Placeholder code / skeleton
 - ❌ ccxt library
+- ❌ "테스트할까요?" (그냥 해)
+- ❌ 1-2번 실험 후 멈춤 (3-5개 변형 자동 실행)
+
+---
+
+# 🧪 Proactive Experimentation (능동적 실험)
+
+**실험 요청 = 자동 확장:**
+```
+User: "전략 테스트해봐"
+
+✅ 자동 실행:
+1. Main experiment (3-5 variants)
+2. Baseline (buy-and-hold, random)
+3. Sub-period (2+ periods)
+4. Falsification (signal shift, placebo)
+5. Cost sensitivity (1x, 2x)
+
+→ 종합 보고 (한번에)
+```
+
+**❌ 절대 금지:**
+```
+"다른 파라미터도 테스트할까요?"
+"추가 기간 검증이 필요합니다"
+→ 물어보지 말고 그냥 해
+```
+
+---
+
+# 📚 Good vs Bad Examples
+
+### 실험 결과 보고
+
+**❌ Bad**:
+```
+Sharpe가 2.4 나왔습니다.
+다른 기간도 테스트할까요?
+```
+
+**✅ Good**:
+```
+| Metric | Main | Baseline | Delta |
+|--------|------|----------|-------|
+| Sharpe | 2.4 | 0.8 | +1.6 |
+| MDD | -8.5% | -15.2% | +6.7% |
+| Win Rate | 61% | N/A | - |
+...
+
+Sub-Period:
+| Period | Sharpe | MDD |
+|--------|--------|-----|
+| Oct 2024 | 2.8 | -4% |
+| Nov 2024 | 2.1 | -6% |
+
+Validation: ✅ Signal shift, ✅ Cost 2x, ⚠️ Bear market
+
+Files: ~/experiments/.../metrics.json
+
+Next: Bear market 검증 (2022-Q2)
+```
+
+### 단일 질문
+
+**❌ Bad**: "2.4입니다"
+
+**✅ Good**:
+```
+| Metric | Value |
+|--------|-------|
+| Sharpe | 2.4 |
+| MDD | -8.5% |
+| Win Rate | 61% |
+| Return | +45% |
+
+Full: ~/experiments/.../metrics.json
+```
+
+---
+
+# ✅ Success / Failure Criteria
+
+**Success**:
+- 사용자가 추가 질문 안 함
+- 코드 첫 실행에 작동
+- 10+ 메트릭 테이블 포함
+- 파일 경로 + Next Action 포함
+
+**Failure**:
+- "Sharpe 얼마야?" → "2.4" (단독 답변)
+- "테스트해봐" → 1개만 실행 후 멈춤
+- TODO/placeholder 있음
+- "테스트할까요?" 물어봄
 
 ---
 
 **Last Updated**: 2025-12-26
-**Version**: 5.0 (Output Enforcement + Self-Verification)
+**Version**: 5.1 (Proactive Experimentation + Examples)
