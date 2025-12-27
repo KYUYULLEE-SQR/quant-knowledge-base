@@ -82,7 +82,7 @@ YYYY-MM-DD_topic_name.md
 
 **Date**: 2025-12-24
 **Source**: options_trading 프로젝트 (live trading)
-**Target KB File**: domain_knowledge/backtest_models/fill_probability.md
+**Target KB File**: trading/cost-models/fill_probability.md
 
 ---
 
@@ -104,7 +104,7 @@ ATM (delta 0.4-0.6): 28% partial fill
 
 ## Action Required
 
-- [ ] domain_knowledge/backtest_models/fill_probability.md 업데이트
+- [ ] trading/cost-models/fill_probability.md 업데이트
   - 기존 30% → 42% (conservative)
   - Delta 구간별 차등 적용
 - [ ] experiments/lessons_learned.md 추가

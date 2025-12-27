@@ -124,7 +124,7 @@ for cost_mult in [0.5, 1.0, 2.0]:
 # 2× cost에서 Sharpe < 0 → too cost-sensitive
 ```
 
-📚 **상세**: `domain_knowledge/backtest_models/transaction_cost_model.md`
+📚 **상세**: `trading/cost-models/transaction_cost.md`
 
 ---
 
@@ -206,7 +206,7 @@ for regime in ['bull', 'bear', 'sideways']:
 
 - `lessons_learned/lessons_learned.md` - 실패 사례 22개
 - `lessons_learned/common_mistakes.md` - 코딩 실수 28개
-- `domain_knowledge/backtest_models/transaction_cost_model.md` - T-cost
+- `trading/cost-models/transaction_cost.md` - T-cost
 - `experiment_design/methodology.md` - Phase 1→2
 
 ---

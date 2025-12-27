@@ -517,18 +517,20 @@ delta_change = gamma_bs * btc_move_usd
 }
 ```
 
-### Deribit `/api/v2/public/ticker` (Pending Verification)
+### Deribit `/api/v2/public/ticker` (Verified 2025-12-23)
 
 ```json
 {
   "greeks": {
-    "delta": 0.xxx,           // ⚠️ BTC or dimensionless? (TODO)
-    "gamma": 0.xxx,           // ⚠️ Unit? (TODO)
-    "theta": -0.xxx,          // ⚠️ BTC/day or USD/day? (TODO)
-    "vega": 0.xxx             // ⚠️ BTC or USD per 1% IV? (TODO)
+    "delta": 0.43083,         // Dimensionless (standard, 0-1 for calls)
+    "gamma": 0.0002,          // Delta change per $1 BTC move
+    "theta": -322.13,         // USD/day (NOT BTC!)
+    "vega": 20.17             // USD per 1% IV (NOT BTC!)
   }
 }
 ```
+
+**Note**: Deribit uses **USD units** for Theta/Vega despite being BTC-margined.
 
 ---
 
@@ -636,6 +638,7 @@ Agent:
 
 ---
 
-**Version**: 1.0
-**Critical**: OKX PA = BTC units, BS = USD units. Always check account margin currency.
-**Status**: Deribit pending verification ⚠️
+**Version**: 1.1
+**Last Updated**: 2025-12-27
+**Critical**: OKX PA = BTC units, BS = USD units. Deribit = USD units.
+**Status**: ✅ OKX verified, ✅ Deribit verified (USD units despite BTC-margined)

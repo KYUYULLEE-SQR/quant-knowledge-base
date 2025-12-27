@@ -19,7 +19,7 @@
 git clone https://github.com/KYUYULLEE-SQR/quant-knowledge-base.git ~/knowledge
 
 # 2. Claude Code rules 설치
-cd ~/knowledge/agent_prompts/claude_code
+cd ~/knowledge/agent-rules
 ./install.sh
 
 # 완료! Claude Code가 이 프롬프트를 사용함
@@ -33,12 +33,12 @@ cd ~/knowledge/agent_prompts/claude_code
 
 ```bash
 # 1. 파일 수정
-vim ~/knowledge/agent_prompts/claude_code/CLAUDE.md
-vim ~/knowledge/agent_prompts/claude_code/rules/06_behavioral_rules.md
+vim ~/knowledge/agent-rules/CLAUDE.md
+vim ~/knowledge/agent-rules/06_behavioral_rules.md
 
 # 2. Git commit & push
 cd ~/knowledge
-git add agent_prompts/claude_code/
+git add agent-rules/
 git commit -m "Update Claude Code rules: ..."
 git push
 
@@ -54,8 +54,8 @@ git pull
 
 | 파일 | 위치 (knowledge) | 심링크 위치 (Claude Code) |
 |------|-----------------|-------------------------|
-| CLAUDE.md | `~/knowledge/agent_prompts/claude_code/` | `~/.claude/` |
-| rules/*.md | `~/knowledge/agent_prompts/claude_code/rules/` | `~/.claude/rules/` |
+| CLAUDE.md | `~/knowledge/agent-rules/` | `~/.claude/` |
+| *.md (numbered) | `~/knowledge/agent-rules/` | `~/.claude/rules/` |
 
 ---
 
@@ -86,18 +86,25 @@ git pull
 - Server context
 - Knowledge base protocol
 
-### rules/*.md (10개)
-1. `00_output_enforcement.md` - 출력 강제 (HIGHEST PRIORITY)
-2. `01_identity_and_context.md` - 정체성, 서버 문맥
-3. `02_cognitive_protocol.md` - 사고 프로토콜
-4. `03_response_structure.md` - 응답 구조
-5. `04_operational_rules.md` - 실무 규칙
-6. `05_experiment_guidelines.md` - 실험 가이드라인
-7. `06_behavioral_rules.md` - 행동 규칙
-8. `08_experiment_organization.md` - 실험 파일 관리
-9. `10_backtesting_integrity.md` - 백테스트 정합성
-10. `11_file_hygiene.md` - 파일 정리 규칙
-11. `12_project_state_protocol.md` - 프로젝트 상태 관리
+### Numbered Rules (11개)
+
+**번호 체계**: 논리적 그룹핑을 위해 07, 09는 예약 슬롯
+
+| # | File | Purpose |
+|---|------|---------|
+| 00 | `00_output_enforcement.md` | 출력 강제 (HIGHEST PRIORITY) |
+| 01 | `01_identity_and_context.md` | 정체성, 서버 문맥 |
+| 02 | `02_cognitive_protocol.md` | 사고 프로토콜 |
+| 03 | `03_response_structure.md` | 응답 구조 |
+| 04 | `04_operational_rules.md` | 실무 규칙 |
+| 05 | `05_experiment_guidelines.md` | 실험 가이드라인 |
+| 06 | `06_behavioral_rules.md` | 행동 규칙 |
+| 07 | *(reserved)* | 미래 확장용 |
+| 08 | `08_experiment_organization.md` | 실험 파일 관리 |
+| 09 | *(reserved)* | 미래 확장용 |
+| 10 | `10_backtesting_integrity.md` | 백테스트 정합성 |
+| 11 | `11_file_hygiene.md` | 파일 정리 규칙 |
+| 12 | `12_project_state_protocol.md` | 프로젝트 상태 관리 |
 
 ### triggers/*.md (2개) ⭐ NEW
 1. `proactivity_triggers.md` - 능동성 트리거 (즉시 실행, 자동 확장, KB 참조)
@@ -118,7 +125,7 @@ git pull
 
 ```bash
 # 재설치
-cd ~/knowledge/agent_prompts/claude_code
+cd ~/knowledge/agent-rules
 ./install.sh
 ```
 
@@ -137,5 +144,5 @@ cd ~/knowledge/agent_prompts/claude_code
 
 ---
 
-**Last Updated**: 2025-12-26
-**Version**: 2.0 (Tests + Triggers 추가, 능동성 강화)
+**Last Updated**: 2025-12-27
+**Version**: 2.1 (경로 수정, 번호 체계 문서화)

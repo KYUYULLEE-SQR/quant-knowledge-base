@@ -592,8 +592,8 @@ python load_to_db.py --start-date 2025-12-05 --end-date 2025-12-05
 
 ## 📖 Related Documentation
 
-- **OKX Options Specs**: `/home/sqr/knowledge/domain_knowledge/exchanges/okx/options_specifications.md`
-- **OKX Fee Structure**: `/home/sqr/knowledge/domain_knowledge/exchanges/okx/fee_structure.md`
+- **OKX Options Specs**: `/home/sqr/knowledge/exchanges/okx/options_specifications.md`
+- **OKX Fee Structure**: `/home/sqr/knowledge/exchanges/okx/fee_structure.md`
 - **Data Loader (v2)**: `/home/sqr/options_trading/v2/data.py`
 - **Options Backtester**: `/home/sqr/options_trading/v2/options_backtester.py`
 - **Remote 1m Data (micky)**: `/home/sqr/knowledge/infrastructure/postgres_data_access.md`

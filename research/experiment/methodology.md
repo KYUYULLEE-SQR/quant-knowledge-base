@@ -415,7 +415,7 @@ Agent:
 
 - **User Rules**: `~/knowledge/agent_prompts/claude_code/rules/05_experiment_guidelines.md` (detailed rules)
 - **Related KB**:
-  - [Transaction Cost Model](../../domain_knowledge/backtest_models/transaction_cost_model.md) - Cost sensitivity testing
+  - [Transaction Cost Model](../../trading/cost-models/transaction_cost.md) - Cost sensitivity testing
   - [Lessons Learned](lessons_learned.md) - Past experiment failures
 - **Scientific Method**: Control variables, isolate effects, reproducibility
 

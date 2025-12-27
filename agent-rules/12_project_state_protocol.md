@@ -112,7 +112,7 @@ If missing, create them (non-destructive) before doing anything else.
 
 ## References
 
-- Knowledge: `~/knowledge/domain_knowledge/exchanges/okx/options_specifications.md`
+- Knowledge: `~/knowledge/exchanges/okx/options_specifications.md`
 - Data: `micky:/futures_data_1m`, `micky:/options_greeks`
 - Key scripts: `src/backtest/engine.py`, `src/data/okx_loader.py`
 ```

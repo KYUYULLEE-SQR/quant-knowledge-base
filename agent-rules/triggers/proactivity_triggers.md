@@ -150,7 +150,7 @@
 
 **자동 행동**:
 ```
-1. ~/knowledge/domain_knowledge/exchanges/okx/fee_structure.md 참조
+1. ~/knowledge/exchanges/okx/fee_structure.md 참조
 2. 정확한 수치 인용
 3. 📚 출처 명시
 ```
@@ -163,7 +163,7 @@
 
 **자동 행동**:
 ```
-1. ~/knowledge/domain_knowledge/exchanges/greeks_definitions.md 참조
+1. ~/knowledge/exchanges/_common/greeks.md 참조
 2. PA/BS 단위 설명
 3. 변환 규칙 포함
 ```
@@ -176,7 +176,7 @@
 
 **자동 행동**:
 ```
-1. ~/knowledge/domain_knowledge/trading_fundamentals/options_expiry_and_tte.md 참조
+1. ~/knowledge/trading/fundamentals/options_expiry_and_tte.md 참조
 2. UTC 08:00 명시
 3. Gamma explosion 경고 포함
 ```
@@ -189,7 +189,7 @@
 
 **자동 행동**:
 ```
-1. ~/knowledge/domain_knowledge/backtest_models/transaction_cost_model.md 참조
+1. ~/knowledge/trading/cost-models/transaction_cost.md 참조
 2. 모델 설명
 3. 권장값 제시
 ```

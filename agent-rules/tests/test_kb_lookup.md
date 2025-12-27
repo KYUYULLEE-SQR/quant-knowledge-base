@@ -40,7 +40,7 @@ OKX 수수료 얼마야?
 | Maker | -0.005% (rebate) |
 | Taker | +0.015% |
 
-📚 출처: `~/knowledge/domain_knowledge/exchanges/okx/fee_structure.md`
+📚 출처: `~/knowledge/exchanges/okx/fee_structure.md`
 ```
 
 ### Anti-Patterns (FAIL)
@@ -77,7 +77,7 @@ OKX Greeks 단위가 뭐야? PA랑 BS 차이는?
 - **PA Gamma**: 변환 공식 불명확, 사용 금지
 - **API 필드**: `deltaBS`, `thetaBS`, `vegaBS` 사용 권장
 
-📚 출처: `~/knowledge/domain_knowledge/exchanges/greeks_definitions.md`
+📚 출처: `~/knowledge/exchanges/_common/greeks.md`
 ```
 
 ### Anti-Patterns (FAIL)
@@ -121,8 +121,8 @@ OKX 옵션 만기 시간이 언제야?
 - Greeks 급변, 신뢰도 낮음
 
 📚 출처:
-- `~/knowledge/domain_knowledge/exchanges/okx/options_specifications.md`
-- `~/knowledge/domain_knowledge/trading_fundamentals/options_expiry_and_tte.md`
+- `~/knowledge/exchanges/okx/options_specifications.md`
+- `~/knowledge/trading/fundamentals/options_expiry_and_tte.md`
 ```
 
 ### Anti-Patterns (FAIL)
@@ -169,7 +169,7 @@ slippage = spread / 2 + market_impact
 - **Maker**: 슬리피지 0 (spread 안 넘으면)
 - **Taker**: 전체 spread + impact
 
-📚 출처: `~/knowledge/domain_knowledge/backtest_models/transaction_cost_model.md`
+📚 출처: `~/knowledge/trading/cost-models/transaction_cost.md`
 ```
 
 ### Anti-Patterns (FAIL)
@@ -292,7 +292,7 @@ Binance 선물 청산 메커니즘이 어떻게 돼?
 ```
 ## ⚠️ KB에 해당 정보 없음
 
-`~/knowledge/domain_knowledge/exchanges/binance/` 에는 다음만 있습니다:
+`~/knowledge/exchanges/binance/` 에는 다음만 있습니다:
 - `fee_structure.md` (수수료)
 - `options_specifications.md` (옵션 스펙)
 
@@ -300,7 +300,7 @@ Binance 선물 청산 메커니즘이 어떻게 돼?
 
 ### 권장 조치
 1. Binance 공식 문서 확인: https://www.binance.com/en/support/faq
-2. KB에 추가 필요 시: `~/knowledge/domain_knowledge/exchanges/binance/futures_liquidation.md` 생성
+2. KB에 추가 필요 시: `~/knowledge/exchanges/binance/futures_liquidation.md` 생성
 
 ### 일반적인 정보 (확인 필요)
 - Maintenance margin 미달 시 청산

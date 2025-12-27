@@ -288,8 +288,8 @@ FROM funding_rates_v2;
 ## Related Files
 
 - SSH 자동화: `~/knowledge/technical_infrastructure/automation/setup_ssh_key.sh`
-- OKX 수수료: `~/knowledge/domain_knowledge/exchanges/okx/fee_structure.md`
-- Greeks 설명: `~/knowledge/domain_knowledge/exchanges/okx/options_specifications.md`
+- OKX 수수료: `~/knowledge/exchanges/okx/fee_structure.md`
+- Greeks 설명: `~/knowledge/exchanges/okx/options_specifications.md`
 
 ---
 

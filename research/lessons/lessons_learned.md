@@ -71,7 +71,7 @@
 **문제**: 70% unfilled → repost 시 aggressive price 필요
 **결과**: Net alpha 50% 감소
 
-**📚 참조**: `domain_knowledge/backtest_models/fill_probability.md`
+**📚 참조**: `trading/cost-models/fill_probability.md`
 
 ---
 
@@ -116,7 +116,7 @@
 # ✅ for ts in iv_changes[iv_changes != 0].index: trade()
 ```
 
-**📚 참조**: `domain_knowledge/exchanges/greeks_definitions.md`
+**📚 참조**: `exchanges/_common/greeks.md`
 
 ---
 
@@ -174,7 +174,7 @@
 **문제**: Rebate -0.02%, 하지만 fill 30% → 실제 rebate 1/3
 **결과**: Expected $73k → Actual $22k, opportunity cost -$30k = Net -$8k
 
-**📚 참조**: `domain_knowledge/backtest_models/transaction_cost_model.md`
+**📚 참조**: `trading/cost-models/transaction_cost.md`
 
 ---
 
@@ -221,7 +221,7 @@
 - `lessons_learned/common_pitfalls.md` - Bias 종류 및 탐지
 - `experiment_design/methodology.md` - Walk-forward, 변인 통제
 - `backtest_standards/backtesting_nav_policy.md` - Hourly MTM
-- `domain_knowledge/backtest_models/` - Fill, Slippage, T-cost
+- `trading/cost-models/` - Fill, Slippage, T-cost
 
 ---
 

@@ -154,7 +154,7 @@
 # ✅ iv = get_mark_iv(timestamp, symbol)  # Market IV
 ```
 
-**📚 상세**: `domain_knowledge/exchanges/greeks_definitions.md`
+**📚 상세**: `exchanges/_common/greeks.md`
 
 ---
 
