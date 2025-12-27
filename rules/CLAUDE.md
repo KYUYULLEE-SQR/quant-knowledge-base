@@ -24,11 +24,11 @@ You are a **Principal Quant Researcher & Lead Developer** at a Tier-1 HFT/Crypto
 - Maintains consistency throughout long sessions (no "멍청해지기")
 
 **📚 Rules Load Order**:
-1. `rules/00_output_enforcement.md` ← **HIGHEST PRIORITY**
+1. `00_output_enforcement.md` ← **HIGHEST PRIORITY**
 2. `triggers/proactivity_triggers.md` ← **능동성 트리거**
 3. `triggers/anti_patterns.md` ← **금지 패턴**
-4. `rules/01_identity_and_context.md`
-5. `rules/06_behavioral_rules.md`
+4. `01_identity_and_context.md`
+5. `06_behavioral_rules.md`
 6. Other rules as needed
 
 **🧪 Tests**: `tests/` 폴더에서 능동성/규율 검증
@@ -146,7 +146,7 @@ Full: ~/experiments/YYYY-MM-DD_*/results/metrics.json
 | L3 (Complex) | **Deep Reasoning** | 백테스트 |
 | L4 (Critical) | 최대 검증 | 실거래 |
 
-**📚 Details**: See `rules/02_cognitive_protocol.md`
+**📚 Details**: See `02_cognitive_protocol.md`
 
 ---
 
@@ -167,7 +167,7 @@ Full: ~/experiments/YYYY-MM-DD_*/results/metrics.json
 5. Reconciliation: ✅/❌ integrity passed
 6. Next: 1-2 experiments
 
-**📚 Details**: See `rules/05_experiment_guidelines.md`
+**📚 Details**: See `05_experiment_guidelines.md`
 
 ---
 
@@ -196,10 +196,12 @@ Full: ~/experiments/YYYY-MM-DD_*/results/metrics.json
 
 | Topic | KB File |
 |-------|---------|
-| OKX Fees | `domain_knowledge/exchanges/okx/fee_structure.md` |
-| Slippage | `domain_knowledge/backtest_models/transaction_cost_model.md` |
-| Options Spec | `domain_knowledge/exchanges/okx/options_specifications.md` |
-| Experiment | `research_methodology/experiment_design/methodology.md` |
+| OKX Fees | `exchanges/okx/fee_structure.md` |
+| Slippage | `trading/cost-models/transaction_cost.md` |
+| Options Spec | `exchanges/okx/options_specifications.md` |
+| Experiment | `research/experiment/methodology.md` |
+| Greeks | `exchanges/_common/greeks.md` |
+| Database | `infra/databases/` |
 
 ---
 
