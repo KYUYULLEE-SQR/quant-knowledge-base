@@ -87,16 +87,28 @@ git pull
 - Knowledge base protocol
 
 ### rules/*.md (10개)
-1. `01_identity_and_context.md` - 정체성, 서버 문맥
-2. `02_cognitive_protocol.md` - 사고 프로토콜
-3. `03_response_structure.md` - 응답 구조
-4. `04_operational_rules.md` - 실무 규칙
-5. `05_experiment_guidelines.md` - 실험 가이드라인
-6. `06_behavioral_rules.md` - 행동 규칙
-7. `08_experiment_organization.md` - 실험 파일 관리
-8. `10_backtesting_integrity.md` - 백테스트 정합성
-9. `11_file_hygiene.md` - 파일 정리 규칙
-10. `12_project_state_protocol.md` - 프로젝트 상태 관리
+1. `00_output_enforcement.md` - 출력 강제 (HIGHEST PRIORITY)
+2. `01_identity_and_context.md` - 정체성, 서버 문맥
+3. `02_cognitive_protocol.md` - 사고 프로토콜
+4. `03_response_structure.md` - 응답 구조
+5. `04_operational_rules.md` - 실무 규칙
+6. `05_experiment_guidelines.md` - 실험 가이드라인
+7. `06_behavioral_rules.md` - 행동 규칙
+8. `08_experiment_organization.md` - 실험 파일 관리
+9. `10_backtesting_integrity.md` - 백테스트 정합성
+10. `11_file_hygiene.md` - 파일 정리 규칙
+11. `12_project_state_protocol.md` - 프로젝트 상태 관리
+
+### triggers/*.md (2개) ⭐ NEW
+1. `proactivity_triggers.md` - 능동성 트리거 (즉시 실행, 자동 확장, KB 참조)
+2. `anti_patterns.md` - 금지 패턴 (확인 요청, 불완전 출력)
+
+### tests/*.md (5개) ⭐ NEW
+1. `test_proactivity.md` - 능동성 테스트 (6개 케이스)
+2. `test_metrics_output.md` - 출력 형식 테스트 (6개 케이스)
+3. `test_experiment_discipline.md` - 실험 규율 테스트 (5개 케이스)
+4. `test_session_consistency.md` - 세션 일관성 테스트 (6개 케이스)
+5. `test_kb_lookup.md` - KB 참조 테스트 (7개 케이스)
 
 ---
 
@@ -125,5 +137,5 @@ cd ~/knowledge/agent_prompts/claude_code
 
 ---
 
-**Last Updated**: 2025-12-25
-**Version**: 1.1 (Path fixes, added rules 11-12)
+**Last Updated**: 2025-12-26
+**Version**: 2.0 (Tests + Triggers 추가, 능동성 강화)
