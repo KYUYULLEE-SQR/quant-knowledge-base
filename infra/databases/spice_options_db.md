@@ -1,7 +1,7 @@
 # Spice Server - Options Database
 
 **Purpose**: Spice 서버 로컬 옵션 데이터베이스 접속 및 사용 가이드
-**Last Updated**: 2025-12-23
+**Last Updated**: 2025-12-29
 **Owner**: sqr
 **Server**: spice (localhost)
 
@@ -11,16 +11,441 @@
 
 | Item | Value |
 |------|-------|
-| **Database** | PostgreSQL 12 |
-| **Host** | 127.0.0.1:5432 |
+| **Database** | PostgreSQL 15 + TimescaleDB 2.24.0 |
+| **Host** | 127.0.0.1:5432 (Docker) |
 | **Database Name** | `data_integration` |
 | **User** | sqr |
 | **Password** | sqr |
 | **Main Table** | `btc_options_parsed` |
-| **Total Rows** | 169,755,765 rows (169M) |
-| **Data Period** | 2022-04-16 ~ 2025-12-05 |
+| **Processed Table** | `processed_btc_options_hourly_v2` ⭐ NEW |
+| **Total Rows** | 169M (raw) + 41M (processed) |
+| **Data Period** | 2022-04-16 ~ 2025-12-27 |
 | **Data Sources** | Deribit (138M rows), OKX (31M rows) |
 | **Update Frequency** | Daily (OKX 데이터) |
+
+---
+
+## 🚀 TimescaleDB Hypertables (2025-12-27 Migration)
+
+**All major time-series tables are now hypertables with compression:**
+
+| Table | Rows | Before | After | Compression | Chunks |
+|-------|------|--------|-------|-------------|--------|
+| eth_options_ohlc_greek_deribit | 168M | 29 GB | 2.0 GB | 93% | 148 |
+| trading_tickers | 36M | 10 GB | 5.0 GB | 50% | 149 |
+| processed_eth_options_hourly | 22M | 5.2 GB | 1.3 GB | 75% | 193 |
+| processed_btc_options_hourly | 16M | 4.0 GB | 1.0 GB | 75% | 192 |
+| futures_data_1m | 11M | 2.3 GB | 0.2 GB | 91% | 184 |
+| **Total** | **253M** | **~50.5 GB** | **~9.5 GB** | **81%** | **866** |
+
+**Chunk Interval**: 7 days
+**Compression Enabled**: Yes (all chunks compressed)
+**Auto-Delete Policy**: No (disabled per user request)
+
+---
+
+## ⭐ Vol Surface Builder (2025-12-29) - 모범 사례
+
+### 프로젝트 개요
+
+| Item | Value |
+|------|-------|
+| **Project Location** | `/home/sqr/vol_surface_builder/` |
+| **Server** | spice (localhost) |
+| **Output Table** | `processed_btc_options_hourly_v2` |
+| **Total Records** | 41,255,002 |
+| **Data Period** | 2022-04-16 ~ 2025-12-27 (45개월) |
+| **Processing Time** | ~45 min (8 parallel workers) |
+
+### 목적
+
+Raw 옵션 데이터(btc_options_hourly)를 **SVI(Stochastic Volatility Inspired) 모델**로 처리하여:
+1. **Smooth Vol Surface** 생성 (arbitrage-free)
+2. **Hourly Mark IV/Price** 계산
+3. **Greeks 계산** (Delta, Gamma, Theta, Vega)
+4. **Gap 보간** (거래 없는 시간대도 SVI로 interpolation)
+
+### 결과 테이블: `processed_btc_options_hourly_v2`
+
+```sql
+CREATE TABLE processed_btc_options_hourly_v2 (
+    timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+    inst_id VARCHAR(100) NOT NULL,           -- e.g., BTC-USD-241025-60000-P
+    strike NUMERIC NOT NULL,
+    expiry TIMESTAMP WITH TIME ZONE NOT NULL,
+    option_type CHAR(1) NOT NULL,            -- 'C' or 'P'
+    spot_price NUMERIC NOT NULL,
+    mark_price NUMERIC,                      -- SVI-derived price (USD)
+    mark_iv NUMERIC,                         -- SVI-smoothed IV
+    delta NUMERIC,
+    gamma NUMERIC,
+    theta NUMERIC,
+    vega NUMERIC,
+    raw_iv NUMERIC,                          -- Original exchange IV
+    raw_price NUMERIC,                       -- Original exchange price
+    PRIMARY KEY (timestamp, inst_id)
+);
+
+-- Indexes
+CREATE INDEX idx_processed_v2_timestamp ON processed_btc_options_hourly_v2 (timestamp);
+CREATE INDEX idx_processed_v2_expiry ON processed_btc_options_hourly_v2 (expiry);
+```
+
+### 데이터 품질 검증 결과 (2025-12-29)
+
+| Check | Result | Notes |
+|-------|--------|-------|
+| Total Records | 41,255,002 | 45개월 처리 완료 |
+| NULL Values | 0 | 모든 필수 컬럼 non-null |
+| IV Range | 1.62% ~ 4561% | 극단 OTM 정상 |
+| Delta Range | -1.0 ~ 1.0 | 유효 범위 내 |
+| Gamma < 0 | 0건 | ✅ |
+| Raw Data Match | 99.7% | 원본 데이터 매칭률 |
+| Symbol Continuity | 99.3% (2024년) | First→Last 연속성 |
+
+### SVI 모델 상세
+
+**SVI (Stochastic Volatility Inspired)** 5-parameter model:
+
+```
+w(k) = a + b * (ρ * (k - m) + sqrt((k - m)² + σ²))
+
+where:
+- w = total variance = σ²(T) * T
+- k = log-moneyness = ln(K/F)
+- a, b, ρ, m, σ = SVI parameters
+```
+
+**Butterfly Arbitrage Constraint**: `b * (1 + |ρ|) < 4`
+
+**Calendar Arbitrage Prevention**: Total variance space interpolation
+
+### 파이프라인 코드
+
+**Location**: `/home/sqr/vol_surface_builder/run_parallel_pipeline.py`
+
+```python
+#!/usr/bin/env python3
+"""
+Parallel Vol Surface Builder Pipeline
+
+Usage:
+    python run_parallel_pipeline.py
+    python run_parallel_pipeline.py --workers 8 --start-month 2025-12
+"""
+import argparse
+from multiprocessing import Pool
+from datetime import datetime
+import pandas as pd
+import numpy as np
+from sqlalchemy import create_engine, text
+
+# Database connection
+DB_URI = 'postgresql://sqr:sqr@127.0.0.1:5432/data_integration'
+TARGET_TABLE = 'processed_btc_options_hourly_v2'
+
+# Key parameters
+WINDOW_HOURS = 4          # Rolling window for trade aggregation
+MIN_TRADES_PER_EXPIRY = 5 # Minimum trades for SVI fitting
+REG_STRENGTH = 0.15       # Temporal regularization strength
+IV_MIN = 0.001            # Trust exchange data (no aggressive filtering)
+IV_MAX = 5.0              # Allow high IV for deep OTM
+
+class HourlySurfaceBuilder:
+    """Build hourly vol surface snapshots using SVI"""
+
+    def build_surfaces(self, trades_df, target_hours):
+        """Build SVI surfaces for each target hour"""
+        surfaces = {}
+        window = pd.Timedelta(hours=self.window_hours)
+
+        for hour in target_hours:
+            # Get trades in window
+            mask = (trades_df['timestamp'] >= hour - window) & \
+                   (trades_df['timestamp'] < hour + window)
+            window_trades = trades_df[mask]
+
+            if len(window_trades) >= self.min_trades:
+                surface = self._fit_hour_surface(window_trades, hour)
+                if surface is not None:
+                    surfaces[hour] = surface
+
+        return surfaces
+
+    def _fit_hour_surface(self, trades, hour):
+        """Fit SVI parameters for each expiry"""
+        params_by_expiry = {}
+
+        for expiry, group in trades.groupby('expiry'):
+            if len(group) < self.min_trades:
+                continue
+
+            T = (pd.to_datetime(expiry) - pd.to_datetime(hour)).total_seconds() \
+                / (365.25 * 24 * 3600)
+
+            if T <= 1/365:  # Skip < 1 day
+                continue
+
+            # Fit SVI with volume weighting
+            weights = np.sqrt(group['vol'].values + 1)
+            params = self.svi_fitter.fit_expiry(
+                k=group['log_moneyness'].values,
+                iv=group['iv'].values,
+                T=T,
+                weights=weights
+            )
+
+            if params is not None:
+                params_by_expiry[expiry] = params
+
+        return VolSurface(params_by_expiry, hour) if params_by_expiry else None
+
+    def generate_hourly_snapshots(self, surfaces, all_options, spot_df):
+        """Generate hourly snapshots with Greeks for all options"""
+        results = []
+
+        for hour, surface in surfaces.items():
+            # Get spot price
+            spot = self._get_spot(spot_df, hour)
+
+            # Price all non-expired options
+            valid_options = all_options[
+                pd.to_datetime(all_options['expiry']) > hour
+            ].copy()
+
+            # Calculate IV from SVI surface
+            ivs = [surface.get_iv(opt['strike'], opt['expiry'], spot)
+                   for _, opt in valid_options.iterrows()]
+            valid_options['mark_iv'] = ivs
+            valid_options = valid_options.dropna(subset=['mark_iv'])
+
+            # Calculate Greeks
+            greeks = calc_greeks_vectorized(
+                spot=np.full(len(valid_options), spot),
+                strike=valid_options['strike'].values,
+                tte=valid_options['tte'].values,
+                iv=valid_options['mark_iv'].values,
+                opt_type=valid_options['option_type'].values
+            )
+
+            # Build result records
+            for i, (_, opt) in enumerate(valid_options.iterrows()):
+                results.append({
+                    'timestamp': hour,
+                    'inst_id': opt['instrument_name'],
+                    'strike': opt['strike'],
+                    'expiry': opt['expiry'],
+                    'option_type': opt['option_type'],
+                    'spot_price': spot,
+                    'mark_price': greeks['price'][i],
+                    'mark_iv': valid_options.iloc[i]['mark_iv'],
+                    'delta': greeks['delta'][i],
+                    'gamma': greeks['gamma'][i],
+                    'theta': greeks['theta'][i],
+                    'vega': greeks['vega'][i],
+                })
+
+        return pd.DataFrame(results)
+
+def process_month(month_tuple):
+    """Process a single month (worker function)"""
+    year, month = month_tuple
+
+    # Load raw data
+    trades_df, all_options, spot_df = load_month_data(year, month)
+
+    # Filter outliers (minimal - trust exchange data)
+    trades_clean = filter_iv_outliers(trades_df, iv_min=0.001, iv_max=5.0)
+
+    # Build surfaces
+    builder = HourlySurfaceBuilder(
+        window_hours=4,
+        min_trades_per_expiry=5,
+        reg_strength=0.15
+    )
+    surfaces = builder.build_surfaces(trades_clean, target_hours)
+
+    # Generate snapshots
+    hourly_data = builder.generate_hourly_snapshots(surfaces, all_options, spot_df)
+
+    # Remove duplicates
+    hourly_data = hourly_data.drop_duplicates(
+        subset=['timestamp', 'inst_id'],
+        keep='first'
+    )
+
+    # Save to database
+    save_to_db(hourly_data, year, month)
+
+    return {'month': f'{year}-{month:02d}', 'records': len(hourly_data)}
+
+def main():
+    # Create table
+    create_target_table()
+
+    # Get all months
+    months = get_available_months()  # [(2025, 12), (2025, 11), ...]
+
+    # Process in parallel
+    with Pool(processes=8) as pool:
+        results = list(pool.imap(process_month, months))
+
+    print(f"Total records: {sum(r['records'] for r in results):,}")
+
+if __name__ == "__main__":
+    main()
+```
+
+### 프로젝트 파일 구조
+
+```
+/home/sqr/vol_surface_builder/
+├── run_parallel_pipeline.py    # ⭐ Main pipeline (8-worker parallel)
+├── src/
+│   ├── __init__.py
+│   ├── iv_calculator.py        # IV calculation & outlier filtering
+│   ├── svi_fitter.py           # SVI model fitting
+│   ├── greeks.py               # Greeks calculation (vectorized)
+│   └── surface_builder.py      # Vol surface construction
+├── output/                      # Intermediate parquet files
+└── pipeline_full.log           # Execution log
+```
+
+### 핵심 모듈 설명
+
+**1. `src/svi_fitter.py`** - SVI 모델 피팅
+
+```python
+class SVIFitter:
+    """
+    SVI (Stochastic Volatility Inspired) model fitter
+
+    Parameters:
+    - reg_strength: Temporal regularization (0.15 default)
+    - min_points: Minimum points per expiry for fitting
+
+    Constraints enforced:
+    - Butterfly: b * (1 + |ρ|) < 4
+    - Calendar: Total variance monotonic in T
+    """
+
+    def fit_expiry(self, k, iv, T, weights=None):
+        """
+        Fit SVI parameters for a single expiry
+
+        Args:
+            k: log-moneyness array
+            iv: implied volatility array
+            T: time to expiry (years)
+            weights: optional volume weights
+
+        Returns:
+            dict with {a, b, rho, m, sigma} or None if fit fails
+        """
+```
+
+**2. `src/greeks.py`** - Greeks 계산
+
+```python
+def calc_greeks_vectorized(spot, strike, tte, iv, opt_type, r=0.0):
+    """
+    Vectorized Black-Scholes Greeks calculation
+
+    Args:
+        spot: spot prices array
+        strike: strike prices array
+        tte: time to expiry (years) array
+        iv: implied volatility array
+        opt_type: 'C' or 'P' array
+        r: risk-free rate (default 0.0)
+
+    Returns:
+        dict with {price, delta, gamma, theta, vega}
+    """
+```
+
+**3. `src/iv_calculator.py`** - IV 필터링
+
+```python
+def filter_iv_outliers(trades_df, iv_min=0.001, iv_max=5.0):
+    """
+    Filter IV outliers (minimal filtering - trust exchange data)
+
+    Changed from aggressive filtering (15%-300%) to permissive (0.1%-500%)
+    because real trades exist at various IV levels.
+    """
+```
+
+### 사용법
+
+```bash
+# 전체 데이터 처리 (45개월, ~45분)
+cd /home/sqr/vol_surface_builder
+python run_parallel_pipeline.py --workers 8
+
+# 특정 월만 처리
+python run_parallel_pipeline.py --start-month 2024-10 --end-month 2024-10
+
+# 로그 확인
+tail -f pipeline_full.log
+```
+
+### Raw vs Processed 비교
+
+| Metric | Raw (btc_options_hourly) | Processed (v2) |
+|--------|-------------------------|----------------|
+| Records | 15,962,922 | 41,255,002 |
+| Coverage | 거래 있을 때만 | 매 시간 (SVI interpolation) |
+| IV | Raw exchange IV | SVI-smoothed mark IV |
+| Greeks | Raw exchange Greeks | BS Greeks (재계산) |
+| Continuity | Gaps 있음 | 99.3% 연속성 (2024년) |
+
+### SVI Smoothing 효과
+
+| Metric | Raw OKX | SVI Processed |
+|--------|---------|---------------|
+| IV Jump (consecutive hour) | Mean 2.35%, Max 32.3% | Mean 1.26%, Max 12.1% |
+| Smoothness | Bumpy | **47% smoother** |
+| Delta Correlation | - | 0.99 (vs raw) |
+| Price Correlation | - | 0.998 (vs raw) |
+
+### 백테스트 사용 시 주의사항
+
+1. **Backtest vs Real Trading Error**: ~80 bps median slippage
+2. **Conservative Adjustment**: 10-20% PnL 감소 예상
+3. **December 2025 Gap**: 12/06 ~ 12/21 raw 데이터 없음 (거래소 문제)
+4. **2024년 데이터**: 99.3% symbol continuity, gap 없음
+
+### Python 사용 예시
+
+```python
+import pandas as pd
+from sqlalchemy import create_engine
+
+engine = create_engine('postgresql://sqr:sqr@127.0.0.1:5432/data_integration')
+
+# 특정 시점의 모든 옵션 데이터 로드
+query = """
+SELECT
+    timestamp, inst_id, strike, expiry, option_type,
+    spot_price, mark_price, mark_iv, delta, gamma, theta, vega,
+    raw_iv, raw_price
+FROM processed_btc_options_hourly_v2
+WHERE timestamp = '2024-10-15 12:00:00+00'
+ORDER BY expiry, strike
+"""
+df = pd.read_sql(query, engine)
+
+# 특정 심볼의 시계열 (백테스트용)
+query = """
+SELECT timestamp, mark_iv, mark_price, delta, gamma
+FROM processed_btc_options_hourly_v2
+WHERE inst_id = 'BTC-USD-241025-60000-P'
+ORDER BY timestamp
+"""
+ts = pd.read_sql(query, engine)
+# → 2792 records, 100% hourly continuity
+```
 
 ---
 
@@ -600,7 +1025,9 @@ python load_to_db.py --start-date 2025-12-05 --end-date 2025-12-05
 
 ---
 
-**Last Updated**: 2025-12-23
+**Last Updated**: 2025-12-29
 **Verified By**: sqr
 **Status**: Production-ready
-**Data Coverage**: 2022-04-16 ~ 2025-12-05 (169M rows)
+**Data Coverage**:
+- Raw: 2022-04-16 ~ 2025-12-27 (169M rows)
+- Processed v2: 2022-04-16 ~ 2025-12-27 (41M rows, SVI-smoothed)
