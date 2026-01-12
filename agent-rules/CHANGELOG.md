@@ -4,6 +4,24 @@
 
 ---
 
+## [10.2] - 2025-01-12
+
+### Added
+- **Mandatory Autosave System** (`/home/sqr/lib/backtest/autosave.py`)
+  - `nav.csv`: 타임프레임 단위 NAV 저장
+  - `cumulative_return.png`: 누적 수익률 차트
+  - `takeaway.md`: 주요 발견사항
+- Assertion 기반 강제화 (`assert_saved()`)
+- 데코레이터 지원 (`@require_autosave`)
+- Tamper protection (비활성화 불가)
+
+### Changed
+- Sisyphus 백테스트 완료 조건에 Autosave 추가
+- Experiment Folder 구조에 필수 파일 명시
+- `20_mandatory_backtest_autosave.md` 전면 재작성
+
+---
+
 ## [10.1] - 2025-01-12
 
 ### Added

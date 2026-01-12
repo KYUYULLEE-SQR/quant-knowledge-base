@@ -180,9 +180,11 @@ Full: ~/experiments/.../metrics.json
 [ ] Sub-period (2+)
 [ ] Falsification (signal shift, placebo)
 [ ] Baksa verification (Trust Score)
+[ ] 🔒 Autosave (nav.csv + chart.png + takeaway.md)
 [ ] 종합 보고
 
 하나라도 미완료 → 계속 진행
+Autosave 안됨 → 백테스트 INVALID
 ```
 
 **📚 Details**: `18_sisyphus_protocol.md`
@@ -251,9 +253,16 @@ Full: ~/experiments/.../metrics.json
 ~/experiments/YYYY-MM-DD_HH-MM_name/
 ├── config.yaml
 ├── code/
-├── results/  (metrics.json, summary.md)
+├── results/
+│   ├── nav.csv                 ← 🔒 MANDATORY
+│   ├── cumulative_return.png   ← 🔒 MANDATORY
+│   ├── takeaway.md             ← 🔒 MANDATORY
+│   ├── metrics.json
+│   └── summary.md
 └── logs/
 ```
+
+**Autosave Module**: `/home/sqr/lib/backtest/autosave.py`
 
 ## Knowledge Base
 | Topic | Path |
@@ -317,6 +326,6 @@ Full: ~/experiments/.../metrics.json
 
 ---
 
-**Version**: 10.1 (Consolidated + Runtime Mode)
-**Lines**: ~320 (기존 500 → 36% 감소)
+**Version**: 10.2 (Consolidated + Autosave Enforcement)
+**Lines**: ~330
 **Last Updated**: 2025-01-12
