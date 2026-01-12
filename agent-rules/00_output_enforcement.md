@@ -120,6 +120,63 @@ Full results: ~/experiments/2025-12-25_*/results/metrics.json
 
 ---
 
+### Trigger 4: 백테스트 결과 (Baksa 검증) 🎓 NEW
+
+**키워드 감지**: 백테스트, backtest, 성과, Sharpe, 수익률, PnL
+
+**자동 출력 (MANDATORY)**:
+
+```markdown
+## 📊 Results with Statistical Evidence
+
+| Metric | Value | [STAT:ci] 95% CI | [STAT:effect_size] vs Baseline |
+|--------|-------|------------------|-------------------------------|
+| Sharpe | X.XX | [X.X, X.X] | +X.X vs B&H |
+| Return | X% | [X%, X%] | +X% vs B&H |
+| MDD | -X% | [-X%, -X%] | +X% vs B&H |
+
+[STAT:sample_size] Trades: N, Period: YYYY-MM ~ YYYY-MM (X days)
+
+## 🎓 Baksa Trust Score: XX/100
+
+| Category | Score | Details |
+|----------|-------|---------|
+| Statistical Markers | +15/-30 | CI: ✅/❌, Effect: ✅/❌ |
+| Reproducibility | +10/-15 | [결과] |
+| Accuracy | +5/-20 | [결과] |
+| Methodology | +10/-20 | [결과] |
+
+**Trust Gate**: ✅ Pass / ❌ Fail
+**Goal Gate**: ✅ Pass / ❌ Fail
+**Decision**: ✅ Deploy / 🟡 Shelve / 🔴 Discard
+```
+
+**누락 시**: 통계 마커 없으면 "Exploratory" 강등, Deploy 금지
+
+---
+
+### Trigger 5: 의심스러운 결과 (자동 경고) 🎓 NEW
+
+**자동 감지**: Sharpe > 5.0 또는 승률 > 70%
+
+**자동 출력 (MANDATORY)**:
+
+```markdown
+🚨 **Baksa Alert**: 의심스러운 결과 감지
+
+- Sharpe: X.X (> 5.0 기준 초과)
+- 승률: X% (> 70% 기준 초과)
+
+**자동 검증 실행 중**:
+1. ✅/❌ Signal shift (+1 bar) 테스트
+2. ✅/❌ Look-ahead bias 코드 검토
+3. ✅/❌ 데이터 누수 점검
+
+**Trust Score**: -20점 (의심 페널티)
+```
+
+---
+
 ## 🔄 SELF-VERIFICATION LOOP (자기 검증)
 
 **EVERY response MUST pass this check before delivery:**
@@ -132,6 +189,9 @@ Full results: ~/experiments/2025-12-25_*/results/metrics.json
 □ 3. 실험 완료? → Conclusion + Files + Next Action 있는가?
 □ 4. 코드 실행? → 실제 출력 포함했는가? (Expected 금지)
 □ 5. 수치 언급? → 단위, 기간, 비교 대상 명시했는가?
+□ 6. 백테스트 결과? → [STAT:ci], [STAT:effect_size] 포함했는가? 🎓
+□ 7. Sharpe > 5 또는 승률 > 70%? → Baksa Alert 표시했는가? 🎓
+□ 8. Trust Score 계산했는가? (백테스트 완료 시) 🎓
 ```
 
 **하나라도 No → 응답 확장 후 재전송**
@@ -573,5 +633,5 @@ User says "done" → Show full report + Decision + Next Action
 
 ---
 
-**Last Updated**: 2025-12-26
-**Version**: 2.0 (Proactive Experimentation + Examples + Meta-Instructions)
+**Last Updated**: 2025-01-11
+**Version**: 3.0 (Baksa Verification System + Statistical Markers + Trust Score)
