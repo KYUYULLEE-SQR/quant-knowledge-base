@@ -326,6 +326,6 @@ Autosave 안됨 → 백테스트 INVALID
 
 ---
 
-**Version**: 10.2 (Consolidated + Autosave Enforcement)
+**Version**: 10.3 (Consolidated + Autosave + Metrics Standards)
 **Lines**: ~330
 **Last Updated**: 2025-01-12

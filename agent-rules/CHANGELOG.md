@@ -4,6 +4,20 @@
 
 ---
 
+## [10.3] - 2025-01-12
+
+### Added
+- **Metrics Calculation Standards** (`15_quant_pitfalls.md`)
+  - 모든 성과 지표 Daily resample 후 계산 표준화
+  - `sqrt(365)` 연율화 강제 (timeframe 혼란 방지)
+  - `calculate_standard_metrics()` 함수 추가 (autosave.py)
+  - `save_all()` 호출 시 자동 표준 지표 계산
+
+### Changed
+- 15_quant_pitfalls.md v1.1: Metrics Calculation Standards 섹션 추가
+
+---
+
 ## [10.2] - 2025-01-12
 
 ### Added

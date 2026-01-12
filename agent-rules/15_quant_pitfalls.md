@@ -417,5 +417,237 @@ sharpe = evaluate(df_test, best_params)  # 다른 기간
 
 ---
 
-**Last Updated**: 2025-12-30
-**Version**: 1.0
+# 4️⃣ Metrics Calculation Standards (지표 계산 표준화) 🆕
+
+## 🎯 핵심 원칙
+
+**모든 성과 지표는 DAILY 기준으로 계산**
+
+```
+어떤 timeframe이든 → Daily resample → sqrt(365) 연율화
+```
+
+### 왜 중요한가?
+
+**❌ 문제**: Timeframe마다 다른 연율화
+```python
+# 1분봉: sqrt(525600) = 724.6
+# 1시간봉: sqrt(8760) = 93.6
+# 1일봉: sqrt(365) = 19.1
+
+# 같은 전략인데 Sharpe가 다르게 나옴!
+sharpe_1m = returns_1m.mean() / returns_1m.std() * np.sqrt(525600)   # 3.2
+sharpe_1h = returns_1h.mean() / returns_1h.std() * np.sqrt(8760)     # 2.8
+sharpe_1d = returns_1d.mean() / returns_1d.std() * np.sqrt(365)      # 2.4
+```
+
+**✅ 해결**: Daily resample 후 계산
+```python
+# 모든 timeframe → Daily로 통일
+sharpe = daily_returns.mean() / daily_returns.std() * np.sqrt(365)  # 항상 동일
+```
+
+---
+
+## 📊 표준 지표 계산 코드
+
+### Sharpe Ratio (MANDATORY)
+
+```python
+def calculate_sharpe_ratio(
+    nav_series: pd.Series,
+    risk_free_rate: float = 0.0,
+    periods_per_year: int = 365
+) -> float:
+    """
+    Sharpe Ratio 표준 계산.
+
+    ⚠️ CRITICAL: 반드시 Daily resample 후 계산!
+
+    Args:
+        nav_series: NAV 시계열 (timestamp index, any timeframe)
+        risk_free_rate: 연간 무위험 이자율 (default: 0)
+        periods_per_year: 연간 거래일 수 (default: 365 for crypto)
+
+    Returns:
+        Annualized Sharpe Ratio
+    """
+    # 1️⃣ Daily resample (MANDATORY)
+    nav_daily = nav_series.resample('D').last().dropna()
+
+    if len(nav_daily) < 2:
+        raise ValueError("Need at least 2 daily data points")
+
+    # 2️⃣ Daily returns
+    daily_returns = nav_daily.pct_change().dropna()
+
+    # 3️⃣ Annualize with sqrt(365)
+    excess_returns = daily_returns - (risk_free_rate / periods_per_year)
+
+    if daily_returns.std() == 0:
+        return 0.0
+
+    sharpe = excess_returns.mean() / daily_returns.std() * np.sqrt(periods_per_year)
+
+    return round(sharpe, 4)
+```
+
+### Max Drawdown (MANDATORY)
+
+```python
+def calculate_max_drawdown(nav_series: pd.Series) -> tuple[float, str, str]:
+    """
+    Max Drawdown 계산.
+
+    Args:
+        nav_series: NAV 시계열
+
+    Returns:
+        (mdd_pct, peak_date, trough_date)
+    """
+    # Daily resample for consistency
+    nav_daily = nav_series.resample('D').last().dropna()
+
+    cummax = nav_daily.cummax()
+    drawdown = (nav_daily - cummax) / cummax
+
+    mdd = drawdown.min()
+    trough_idx = drawdown.idxmin()
+    peak_idx = nav_daily[:trough_idx].idxmax()
+
+    return (
+        round(mdd * 100, 2),  # percentage
+        str(peak_idx.date()),
+        str(trough_idx.date())
+    )
+```
+
+### All Standard Metrics
+
+```python
+def calculate_standard_metrics(nav_series: pd.Series) -> dict:
+    """
+    표준 성과 지표 계산 (Daily 기준).
+
+    ⚠️ 모든 백테스트는 이 함수로 지표 계산!
+    """
+    # Daily resample
+    nav_daily = nav_series.resample('D').last().dropna()
+    daily_returns = nav_daily.pct_change().dropna()
+
+    # Basic metrics
+    total_return = (nav_daily.iloc[-1] / nav_daily.iloc[0] - 1) * 100
+
+    # Sharpe (annualized)
+    sharpe = daily_returns.mean() / daily_returns.std() * np.sqrt(365) if daily_returns.std() > 0 else 0
+
+    # MDD
+    cummax = nav_daily.cummax()
+    drawdown = (nav_daily - cummax) / cummax
+    mdd = drawdown.min() * 100
+
+    # Volatility (annualized)
+    volatility = daily_returns.std() * np.sqrt(365) * 100
+
+    # Sortino (downside only)
+    downside_returns = daily_returns[daily_returns < 0]
+    sortino = daily_returns.mean() / downside_returns.std() * np.sqrt(365) if len(downside_returns) > 0 and downside_returns.std() > 0 else 0
+
+    # Calmar
+    calmar = (total_return / 100 * 365 / len(nav_daily)) / abs(mdd / 100) if mdd != 0 else 0
+
+    return {
+        'total_return_pct': round(total_return, 2),
+        'sharpe_ratio': round(sharpe, 4),
+        'max_drawdown_pct': round(mdd, 2),
+        'volatility_annual_pct': round(volatility, 2),
+        'sortino_ratio': round(sortino, 4),
+        'calmar_ratio': round(calmar, 4),
+        'trading_days': len(nav_daily),
+        'calculation_method': 'daily_resample_365'  # 표준 명시
+    }
+```
+
+---
+
+## 🚫 절대 금지 패턴
+
+### ❌ Timeframe별 다른 연율화
+
+```python
+# ❌ WRONG: 1분봉에서 직접 연율화
+returns_1m = nav_1m.pct_change()
+sharpe = returns_1m.mean() / returns_1m.std() * np.sqrt(525600)  # 말도 안되는 값!
+
+# ❌ WRONG: 1시간봉에서 직접 연율화
+returns_1h = nav_1h.pct_change()
+sharpe = returns_1h.mean() / returns_1h.std() * np.sqrt(8760)  # 다른 값!
+```
+
+### ❌ Raw timeframe에서 지표 계산
+
+```python
+# ❌ WRONG: resample 없이 계산
+def bad_sharpe(nav_series, timeframe):
+    returns = nav_series.pct_change()
+
+    # timeframe마다 다른 factor... 혼란
+    if timeframe == '1m':
+        factor = np.sqrt(525600)
+    elif timeframe == '1h':
+        factor = np.sqrt(8760)
+    elif timeframe == '1D':
+        factor = np.sqrt(365)
+
+    return returns.mean() / returns.std() * factor
+```
+
+### ✅ 올바른 방법
+
+```python
+# ✅ CORRECT: 항상 Daily resample 후 계산
+def correct_sharpe(nav_series):
+    """어떤 timeframe이든 동일한 결과"""
+    nav_daily = nav_series.resample('D').last().dropna()
+    daily_returns = nav_daily.pct_change().dropna()
+    return daily_returns.mean() / daily_returns.std() * np.sqrt(365)
+```
+
+---
+
+## ✅ Metrics Calculation 체크리스트
+
+**지표 계산 전:**
+- [ ] NAV series를 Daily로 resample 했는가?
+- [ ] `resample('D').last()` 사용했는가?
+- [ ] NaN 처리 했는가? (`.dropna()`)
+
+**Sharpe 계산:**
+- [ ] Daily returns 사용했는가?
+- [ ] `sqrt(365)` 연율화 했는가?
+- [ ] 결과에 `calculation_method: daily_resample_365` 명시했는가?
+
+**결과 보고:**
+- [ ] 모든 지표가 동일 기준(Daily)으로 계산되었는가?
+- [ ] Sharpe > 5 아닌가? (비현실적, 버그 의심)
+- [ ] 계산 방법이 metrics.json에 기록되었는가?
+
+---
+
+## 🔧 Autosave 연동
+
+`/home/sqr/lib/backtest/autosave.py`의 metrics 계산도 이 표준 적용:
+
+```python
+# autosave.py에서 자동으로 daily resample 적용
+autosave.save_all(
+    nav_series=nav_df,  # 어떤 timeframe이든 OK
+    takeaway=["..."],
+    metrics={...}  # 자동으로 daily 기준 계산
+)
+```
+
+---
+
+**Last Updated**: 2025-01-12
+**Version**: 1.1 (Metrics Calculation Standards 추가)
